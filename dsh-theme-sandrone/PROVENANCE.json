@@ -1,0 +1,111 @@
+{
+  "package": "dsh-theme-sandrone",
+  "version": "0.3.0",
+  "upstream": {
+    "repo": "https://github.com/fengye337/sandrone-codex",
+    "commit": "8574a24c7e3e226a49cb8dd1b4b54e22874fb129",
+    "codeLicense": "MIT",
+    "assetLicense": "third-party assets; not MIT; no public redistribution permission granted",
+    "assetProvenance": "https://github.com/fengye337/sandrone-codex/blob/main/assets/PROVENANCE.json",
+    "assetLicenseFile": "https://github.com/fengye337/sandrone-codex/blob/main/ASSET-LICENSE.md"
+  },
+  "files": [
+    {
+      "file": "assets/background.webp",
+      "sha256": "bb7542b7d4194b03de7228ee1a5f94c57dc00d37298b2c08bea27cbd653d0a52",
+      "source": "assets/backgrounds/dark-mechanical.jpg",
+      "sourceSha256": "7b03e4c651b66f5709732169c9d1e375d4c824c648958ef405c7657dd37c4dd3",
+      "transform": "JPEG to WebP",
+      "license": "third-party asset; not MIT"
+    },
+    {
+      "file": "assets/burst.png",
+      "sha256": "9c97f6d957d11d4b4568b815b7cbcf92b6d7aba01adbf64b950439ce43e84300",
+      "source": "assets/ornaments/burst.png",
+      "sourceSha256": "9c97f6d957d11d4b4568b815b7cbcf92b6d7aba01adbf64b950439ce43e84300",
+      "transform": "none",
+      "license": "third-party asset; not MIT"
+    },
+    {
+      "file": "assets/cryo.png",
+      "sha256": "3112c4d0aeb5faa3140eca25cc4da8ccf5b2c744a71bfe5a9ecebc744a5432ba",
+      "source": "assets/ornaments/cryo.png",
+      "sourceSha256": "3112c4d0aeb5faa3140eca25cc4da8ccf5b2c744a71bfe5a9ecebc744a5432ba",
+      "transform": "none",
+      "license": "third-party asset; not MIT"
+    },
+    {
+      "file": "assets/gear.png",
+      "sha256": "ae5244762dd7b1535bf50a90cfcdab8dfbf27addf121bece59e6fc6bd2a04a2f",
+      "source": "assets/ornaments/01_ornate_gear.png",
+      "sourceSha256": "ae5244762dd7b1535bf50a90cfcdab8dfbf27addf121bece59e6fc6bd2a04a2f",
+      "transform": "none",
+      "license": "third-party asset; not MIT"
+    },
+    {
+      "file": "assets/icon.png",
+      "sha256": "ccce4e1c2d93e0e2df3b9d42e35d1466b148de2b66ab75b7273cc1045955265e",
+      "source": "assets/characters/sandrone/round-icon.png",
+      "sourceSha256": "ccce4e1c2d93e0e2df3b9d42e35d1466b148de2b66ab75b7273cc1045955265e",
+      "transform": "none",
+      "license": "third-party asset; not MIT"
+    },
+    {
+      "file": "assets/iris.png",
+      "sha256": "a79ee38caf3df62adc4debf576a1549bd34c8475740cd873b1b682a0f4b16a38",
+      "source": "assets/ornaments/02_mechanical_iris.png",
+      "sourceSha256": "a79ee38caf3df62adc4debf576a1549bd34c8475740cd873b1b682a0f4b16a38",
+      "transform": "none",
+      "license": "third-party asset; not MIT"
+    },
+    {
+      "file": "assets/opening.json",
+      "sha256": "54fbfa911d32fa6ad2f719dc761d4938708d3a23fcde3d40d87ba683ca0cca55",
+      "source": "assets/motion/sandrone-outline.json and assets/branding/sandrone-signature.json",
+      "transform": "derived geometry/signature data",
+      "generatedBy": "work/build-opening.py",
+      "note": "The build script is MIT, but it copies the upstream path arrays verbatim; this output is a derivative of upstream asset data, not an original drawing.",
+      "license": "third-party asset derivation; not MIT"
+    },
+    {
+      "file": "assets/opening.mp4",
+      "sha256": "539af561ef48548369bc8acf98bdb654e36b0beb8739a2e52e71b6a5d9804f18",
+      "source": "assets/motion/sandrone-loop-1080p.mp4",
+      "sourceSha256": "539af561ef48548369bc8acf98bdb654e36b0beb8739a2e52e71b6a5d9804f18",
+      "transform": "none",
+      "license": "third-party asset; not MIT"
+    },
+    {
+      "file": "assets/portrait.webp",
+      "sha256": "6be615d621244cad1ada469df9cc48c776ecbfea9b4f436806f699b9a9e30f39",
+      "source": "assets/characters/sandrone/portrait.png",
+      "sourceSha256": "acbd806b9c447c531593175de13da9182468c82001f9b6d55bb3ca964a859cae",
+      "transform": "PNG to WebP",
+      "license": "third-party asset; not MIT"
+    },
+    {
+      "file": "assets/skill.png",
+      "sha256": "bcef24870c544df1f6415f366b9deb7b37cb0615590aedccaba8e0d1339ca389",
+      "source": "assets/ornaments/skill.png",
+      "sourceSha256": "bcef24870c544df1f6415f366b9deb7b37cb0615590aedccaba8e0d1339ca389",
+      "transform": "none",
+      "license": "third-party asset; not MIT"
+    },
+    {
+      "file": "assets/strings.png",
+      "sha256": "242d34ba63c711ffff7c125f2737eb796e615613d74f60d5a5fe059c5f868819",
+      "source": "assets/ornaments/04_marionette_strings.png",
+      "sourceSha256": "242d34ba63c711ffff7c125f2737eb796e615613d74f60d5a5fe059c5f868819",
+      "transform": "none",
+      "license": "third-party asset; not MIT"
+    },
+    {
+      "file": "assets/trace.mp4",
+      "sha256": "039615bf2af549ba23514af80db3e21bad3b2fb3602f158cd1a21d22942677ca",
+      "source": "assets/motion/sandrone-trace-1080p.mp4",
+      "sourceSha256": "039615bf2af549ba23514af80db3e21bad3b2fb3602f158cd1a21d22942677ca",
+      "transform": "none",
+      "license": "third-party asset; not MIT"
+    }
+  ]
+}

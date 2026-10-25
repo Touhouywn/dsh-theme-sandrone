@@ -1,0 +1,42 @@
+{
+  "name": "dsh-theme-sandrone",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "Sandrone · 人偶工坊 — dark theme for the DeepSeek Harness Web GUI. The Workshop sidebar entry ships as a companion package.",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./assets/icon.png",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true
+    }
+  },
+  "files": [
+    "lib",
+    "theme",
+    "assets",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "README.md",
+    "NOTICE.md",
+    "LICENSE",
+    "ASSET-LICENSE.md",
+    "PROVENANCE.json",
+    "install.ps1",
+    "uninstall.ps1"
+  ],
+  "engines": {
+    "dsh": ">=0.2.1-rc.3"
+  }
+}

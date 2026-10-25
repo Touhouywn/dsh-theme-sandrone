@@ -1,0 +1,470 @@
+/* ==========================================================================
+   Sandrone · 人偶工坊  —  DeepSeek Harness theme layer
+   --------------------------------------------------------------------------
+   Converted from the Codex "Sandrone" skin (themes/sandrone/theme.json + CSS).
+   The Codex skin targets Codex's own `[data-ds-part]` hooks; DSH is token
+   driven, so this file re-expresses the same design language as overrides of
+   the `--dsw-*` alias tokens plus three narrowly scoped structural rules.
+
+   Scope: every rule is gated on `body[data-ds-dark-theme]`. The host half
+   forces that attribute while the plugin is mounted, so the theme is
+   dark-only by design (the original skin declares "appearance": "dark") and
+   the page falls back to the stock look the moment the plugin is disabled.
+
+   Load order: this sheet is injected at the top of <head>, i.e. before the
+   design-system token sheets, so overrides win by specificity
+   (`html body[data-ds-dark-theme]` = 0,1,2 > `body[data-ds-dark-theme]`).
+   ========================================================================== */
+
+html { color-scheme: dark; }
+
+/* --------------------------------------------------------------------------
+   1. Palette
+   -------------------------------------------------------------------------- */
+html body[data-ds-dark-theme] {
+  /* Marker the page-side self-check reads: proves this sheet actually applied. */
+  --sandrone-theme: on;
+
+  /* --- canvas ----------------------------------------------------------- */
+  /* Transparent on purpose: the artwork is painted on the document canvas, and
+     every element that fills with this token (the app frame, the Windows
+     titlebar centre column) must let it through. Code blocks re-declare an
+     opaque value below, because their sticky banner paints with it. */
+  --dsw-alias-bg-base: transparent;
+  --dsw-alias-bg-document-preview: #080b11;
+  --dsw-alias-bg-document-selection: color-mix(in srgb, #c7a86e 34%, transparent);
+
+  /* --- raised surfaces -------------------------------------------------- */
+  --dsw-alias-bg-layer-1: #10151e;
+  --dsw-alias-bg-layer-2: #151b26;
+  --dsw-alias-bg-layer-3: #1b2230;
+  --dsw-alias-bg-layer-4: #202839;
+  --dsw-alias-bg-module-platform: #151c27;
+  --dsw-alias-bg-multi-select: #161d28;
+  --dsw-alias-bg-overlay: #1a2130;
+  --dsw-alias-bg-skeleton: rgba(235, 227, 209, 0.06);
+
+  /* --- sidebar ---------------------------------------------------------- */
+  /* This token also paints the whole frame under the Windows custom-titlebar
+     variant (`[data-windows-titlebar] .frame`) and its titlebar strip, so it
+     must stay see-through or it hides the canvas artwork everywhere. The
+     sidebar column itself gets its own gradient further down. */
+  --dsw-specific-sidebar-fill: rgba(9, 13, 19, 0);
+  --dsw-specific-sidebar-nav-item-hover: rgba(199, 168, 110, 0.08);
+  --dsw-specific-sidebar-nav-item-active: rgba(199, 168, 110, 0.14);
+  --dsw-specific-sidebar-nav-item-active-accent: rgba(199, 168, 110, 0.22);
+
+  /* --- composer, bubbles, selectors ------------------------------------- */
+  --dsw-specific-input-major: rgba(19, 26, 38, 0.88);
+  --dsw-specific-login-input: rgba(15, 21, 31, 0.92);
+  --dsw-specific-bubble: #16202e;
+  --dsw-specific-bubble-highlight: #27333f;
+  --dsw-specific-selector: #1b2230;
+  --dsw-specific-tip: #1a2130;
+
+  /* --- text ------------------------------------------------------------- */
+  --dsw-alias-label-primary: #ebe3d1;
+  --dsw-alias-label-primary-dimmed: #f5f0e6;
+  --dsw-alias-label-primary-bluish: #e3d4b1;
+  --dsw-alias-label-primary-inverted: #17120a;
+  --dsw-alias-label-primary-foreground: #191309;
+  --dsw-alias-label-secondary: #c9c0b0;
+  --dsw-alias-label-tertiary: #a4988a;
+  --dsw-alias-label-caption: #7b7367;
+  --dsw-alias-label-dimmed: #4d4a44;
+  --dsw-alias-label-shimmer: rgba(255, 255, 255, 0.42);
+  --dsw-alias-label-deep-diving: color-mix(in srgb, #a9cbd5 62%, #4d4a44);
+  --dsw-alias-label-deep-diving-shimmer: color-mix(in srgb, #e3d4b1 70%, #a9cbd5);
+  --dsw-alias-menu-icon: #b8afa2;
+
+  /* --- lines ------------------------------------------------------------ */
+  --dsw-alias-border-l1: rgba(199, 168, 110, 0.1);
+  --dsw-alias-border-l2: rgba(199, 168, 110, 0.16);
+  --dsw-alias-border-l2-darkmode-thin: rgba(199, 168, 110, 0.12);
+  --dsw-alias-border-l3: rgba(199, 168, 110, 0.22);
+  --dsw-alias-border-l4: rgba(199, 168, 110, 0.3);
+  --dsw-alias-border-inverted: rgba(8, 11, 17, 0.5);
+  --dsw-alias-border-inverted2: rgba(8, 11, 17, 0.32);
+
+  /* --- brand & buttons -------------------------------------------------- */
+  --dsw-alias-brand-primary: #c7a86e;
+  --dsw-alias-brand-primary-invert: #080b11;
+  --dsw-alias-brand-text: #e3d4b1;
+  --dsw-alias-button-primary-fill: var(--dsw-alias-brand-primary);
+  --dsw-alias-button-primary-hover: #dcc28a;
+  --dsw-alias-button-primary-dimmed: #6b5a3c;
+  --dsw-alias-button-contrast-fill: #2a2218;
+  --dsw-alias-button-elevated-fill: #1b2230;
+  --dsw-alias-button-floating-fill: rgba(16, 21, 30, 0.92);
+  --dsw-alias-button-floating-hover: rgba(27, 34, 48, 0.96);
+  --dsw-alias-button-ghost-active-fill: #202839;
+  --dsw-alias-button-ghost-active-hover: #283245;
+  --dsw-alias-button-ghost-active-border: #6b5a3c;
+  --dsw-alias-button-tool-bar-fill: rgba(10, 14, 20, 0.72);
+  --dsw-alias-button-tool-bar-fill-invisible: rgba(10, 14, 20, 0.4);
+  --dsw-alias-button-tool-bar-hover: rgba(27, 34, 48, 0.85);
+
+  /* --- interaction ------------------------------------------------------ */
+  --dsw-alias-interactive-bg-hover: rgba(199, 168, 110, 0.08);
+  --dsw-alias-interactive-bg-active: rgba(199, 168, 110, 0.15);
+  --dsw-alias-interactive-bg-hover-solid: #1d2431;
+  --dsw-alias-interactive-bg-hover-accent: rgba(169, 203, 213, 0.16);
+  --dsw-alias-interactive-bg-hover-danger: rgba(153, 62, 80, 0.2);
+  --dsw-alias-link: #a9cbd5;
+  --dsw-focus-ring-color: #c7a86e;
+
+  /* --- state ------------------------------------------------------------ */
+  --dsw-alias-state-business-primary: #a9cbd5;
+  --dsw-alias-state-business-tertiary: rgba(169, 203, 213, 0.16);
+  --dsw-alias-state-success-primary: #6fae8c;
+  --dsw-alias-state-success-secondary: #8fd3b0;
+  --dsw-alias-state-success-tertiary: rgba(111, 174, 140, 0.16);
+  --dsw-alias-state-error-primary: #d4707f;
+  --dsw-alias-state-error-secondary: #993e50;
+  --dsw-alias-state-warn-primary: #d8b26a;
+  --dsw-alias-state-warn-secondary: #e3d4b1;
+  --dsw-alias-state-warn-tertiary: rgba(216, 178, 106, 0.16);
+  --dsw-alias-state-warn-label: #d8b26a;
+  --dsw-alias-state-idle-primary: #454b57;
+
+  /* --- markdown & code -------------------------------------------------- */
+  --dsw-alias-markdown-code-block: #0d131c;
+  --dsw-alias-markdown-code-block-banner: #141b26;
+  --dsw-alias-markdown-code-segment-selected: #1f2836;
+  --dsw-alias-markdown-code-segment-unselected: #141b25;
+  --dsw-alias-markdown-inline-code: #171e29;
+  --dsw-alias-markdown-citation: #171e29;
+  --dsw-alias-markdown-placeholder: #171e29;
+  --dsw-alias-markdown-tag: #171e29;
+  --dsw-alias-code-diff-added: rgba(111, 174, 140, 0.14);
+  --dsw-alias-code-diff-deleted: rgba(153, 62, 80, 0.16);
+  --dsw-alias-file-diff-added-bg: #12251c;
+  --dsw-alias-file-diff-added-gutter: #0e1a14;
+  --dsw-alias-file-diff-added-marker: #5fbf8f;
+  --dsw-alias-file-diff-deleted-bg: #2a1418;
+  --dsw-alias-file-diff-deleted-gutter: #1d0e11;
+  --dsw-alias-file-diff-deleted-marker: #d4707f;
+
+  /* --- overlays & chrome ------------------------------------------------ */
+  --dsw-alias-bg-mask-1: rgba(0, 0, 0, 0.56);
+  --dsw-alias-bg-mask-2: rgba(0, 0, 0, 0.24);
+  --dsw-alias-bg-mask-3: rgba(0, 0, 0, 0.62);
+  --dsw-alias-bg-mask-drop: rgba(10, 14, 20, 0.74);
+  --dsw-menu-surface-fill: rgba(18, 23, 32, 0.92);
+  --dsw-alias-menu-group-header-fill: rgba(16, 21, 30, 0.96);
+  --dsw-specific-menu: var(--dsw-menu-surface-fill);
+  --dsw-hovercard-bg: rgba(20, 26, 36, 0.96);
+  --dsw-alias-toast-bg: #1c2432;
+  --dsw-alias-toast-label: #ebe3d1;
+  --dsw-alias-tooltip-bg: #1c2432;
+  --dsw-alias-tooltip-key-bg: #2b3546;
+  --dsw-alias-turn-trigger-bg: #141b25;
+  --dsw-alias-turn-trigger-bg-hover: rgba(199, 168, 110, 0.1);
+  --dsw-alias-switch-thumb: #e3d4b1;
+
+  /* --- scrollbars ------------------------------------------------------- */
+  --dsw-alias-scrollbar-bg-l1: #4a3f2c;
+  --dsw-alias-scrollbar-hover-l1: #6b5a3c;
+  --dsw-alias-scrollbar-bg-l2: #554836;
+  --dsw-alias-scrollbar-hover-l2: #7a6746;
+
+  /* --- syntax (shiki) --------------------------------------------------- */
+  --shiki-foreground: #e6ddcb;
+  --shiki-background: #0d131c;
+  --shiki-token-constant: #9fc7db;
+  --shiki-token-string: #a9cbd5;
+  --shiki-token-string-expression: #8fbfd1;
+  --shiki-token-comment: #6d7480;
+  --shiki-token-keyword: #d8a86b;
+  --shiki-token-parameter: #cfb78a;
+  --shiki-token-function: #c7a86e;
+  --shiki-token-punctuation: #9a948a;
+  --shiki-token-link: #a9cbd5;
+}
+
+/* --------------------------------------------------------------------------
+   2. Canvas artwork
+   The artwork lives on the document canvas, not on any app element: the app
+   paints its base colour through `--dsw-alias-bg-base`, which the palette block
+   makes transparent, so every surface that would fill the window opaquely lets
+   the canvas through. This works regardless of how the shell nests its frame.
+   The scrim follows the skin's own `art.safeArea: "left"`: dark enough under
+   the sidebar and the text measure, nearly clear where the character stands.
+   -------------------------------------------------------------------------- */
+html body[data-ds-dark-theme] { background-color: transparent; }
+
+html {
+  background-color: #080b11;
+  background-image:
+    radial-gradient(115% 85% at 84% 46%, rgba(199, 168, 110, 0.18), transparent 64%),
+    linear-gradient(
+      90deg,
+      #080b11 0%,
+      #080b11 14%,
+      rgba(8, 11, 17, 0.72) 26%,
+      rgba(8, 11, 17, 0.38) 40%,
+      rgba(8, 11, 17, 0.16) 55%,
+      rgba(8, 11, 17, 0.04) 72%,
+      rgba(8, 11, 17, 0) 88%,
+      rgba(8, 11, 17, 0) 100%
+    ),
+    url("/theme-sandrone/background.webp");
+  background-repeat: no-repeat;
+  background-size: auto, auto, auto 100%;
+  background-position: center, center, right center;
+}
+
+/* The reading veil: a soft ellipse under the conversation measure. Kept light
+   on purpose — the scrim above already carries the contrast budget, and the
+   artwork has to stay readable at the right edge. */
+html body[data-ds-dark-theme] [class*="centerCol"] {
+  background: radial-gradient(
+    44% 60% at 34% 46%,
+    rgba(8, 11, 17, 0.5) 0%,
+    rgba(8, 11, 17, 0.3) 50%,
+    rgba(8, 11, 17, 0.06) 80%,
+    rgba(8, 11, 17, 0) 100%
+  );
+}
+
+html body[data-ds-dark-theme] [class*="rightbarCol"] {
+  background: transparent;
+}
+
+/* Code blocks keep an opaque canvas: their sticky banner paints with the base
+   token, and a see-through banner would let covered lines show through. */
+html body[data-ds-dark-theme] pre,
+html body[data-ds-dark-theme] code {
+  --dsw-alias-bg-base: #0d131c;
+}
+
+/* Sidebar: obsidian glass with a hairline gold edge. */
+html body[data-ds-dark-theme] [class*="sidebarCol"] {
+  background: linear-gradient(180deg, rgba(12, 17, 24, 0.92), rgba(8, 11, 17, 0.86));
+  border-right: 1px solid rgba(199, 168, 110, 0.22);
+  box-shadow: inset -12px 0 24px -18px rgba(0, 0, 0, 0.9);
+  -webkit-backdrop-filter: blur(12px) saturate(118%);
+  backdrop-filter: blur(12px) saturate(118%);
+}
+
+/* --------------------------------------------------------------------------
+   3. Finishing touches
+   -------------------------------------------------------------------------- */
+/* Composer: deep-blue marble pane with a gold focus edge. */
+html body[data-ds-dark-theme] [class*="composer"] {
+  border-color: rgba(199, 168, 110, 0.24);
+}
+
+html body[data-ds-dark-theme] [class*="composer"]:focus-within {
+  border-color: rgba(199, 168, 110, 0.48);
+  box-shadow: 0 0 0 1px rgba(199, 168, 110, 0.18), 0 8px 28px rgba(0, 0, 0, 0.36);
+}
+
+/* Warm scrollbar resting state. */
+html body[data-ds-dark-theme] ::-webkit-scrollbar-thumb {
+  background: rgba(199, 168, 110, 0.22);
+}
+
+html body[data-ds-dark-theme] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(199, 168, 110, 0.38);
+}
+
+/* Text selection picks up the gold. */
+html body[data-ds-dark-theme] ::selection {
+  background: rgba(199, 168, 110, 0.28);
+  color: #f6f1e6;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar glyphs
+   Restyling happens in CSS only. Replacing or removing these nodes from the
+   page broke React's reconciliation: the shell could no longer find its own
+   children and unmounted whole sections (the workspace list disappeared). A
+   paint-only rule cannot do that — the DOM stays exactly as the shell built it.
+   -------------------------------------------------------------------------- */
+html body[data-ds-dark-theme] [class*="sidebarCol"] svg {
+  color: #d9bd86;
+  transition: color var(--ds-transition-duration-fast) var(--ds-ease-in-out);
+}
+
+html body[data-ds-dark-theme] [class*="sidebarCol"] svg:hover {
+  color: #f0dcb2;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar toggle in the title bar
+   The Ctrl+B control belongs to the sidebar header (`iconButton.toggle`). Pinning
+   it there does not work: the sidebar column sets `backdrop-filter`, which makes
+   it the containing block for `position: fixed` descendants, and its `overflow`
+   clips anything above its own top edge — the button could only ever reach the
+   column's first row.
+
+   So the shell's control stays where the shell put it, and the theme adds its own
+   button on `<html>` (a layer React never reconciles — the same place the opening
+   overlay lives). The added button forwards the click to the shell's control, so
+   the shell still owns the state and the Ctrl+B shortcut.
+   -------------------------------------------------------------------------- */
+html body[data-ds-dark-theme] button[aria-label="收起侧边栏"],
+html body[data-ds-dark-theme] button[aria-label="展开侧边栏"] {
+  /* Hidden because the title-bar button replaces it; the element stays mounted
+     and clickable so the forwarded click still toggles the sidebar. */
+  visibility: hidden;
+}
+
+html [data-sandrone-titlebar-toggle] {
+  /* Height is 26px on a ~32px title bar, so 3px centres it against the menu. */
+  top: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar marks
+   The art is painted *over* each stock glyph with a pseudo-element, never by
+   hiding or touching the node. An earlier attempt hid the glyph and painted the
+   wrapper: the stock mark stayed visible beside the art (the brand showed two
+   icons) because hiding did not always win. A covering layer cannot be beaten by
+   whatever the shell renders underneath, and it still adds no nodes to React's
+   tree — only a pseudo-element, which React never sees.
+
+   Class names are the packages' own module keys, matched on their stable
+   suffix: `brandMark` (sidebar header), `panelIcon`/`panelGlyph` (nav rows),
+   `folder` (workspace rows). The brand-mark slot itself is a hard
+   single-occupant outlet, so registering there is not an option.
+   -------------------------------------------------------------------------- */
+html body[data-ds-dark-theme] [class*="brandMark"],
+html body[data-ds-dark-theme] [class*="railMark"],
+html body[data-ds-dark-theme] [class*="panelIcon"],
+html body[data-ds-dark-theme] [class*="panelGlyph"] {
+  position: relative;
+  /* A flex box gives the overlay the icon's own box instead of the line box.
+     Not applied to `folder`: it is an SVG, where a display change reflows the
+     workspace rows (their labels were pushed out to the left and clipped). */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+html body[data-ds-dark-theme] [class*="folder"] {
+  position: relative;
+}
+
+html body[data-ds-dark-theme] [class*="brandMark"]::after,
+html body[data-ds-dark-theme] [class*="railMark"]::after,
+html body[data-ds-dark-theme] [class*="panelIcon"]::after,
+html body[data-ds-dark-theme] [class*="panelGlyph"]::after,
+html body[data-ds-dark-theme] [class*="folder"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 80%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Brand: the Sandrone portrait covers the whale.
+   The slot holder is only 24px, which left the portrait lost in the header, so
+   the holder is enlarged and the art overfills it slightly — the portrait is
+   round, so the extra edge reads as a deliberate badge rather than a crop. */
+html body[data-ds-dark-theme] [class*="brandMark"] {
+  width: 34px;
+  height: 34px;
+  flex: none;
+}
+
+html body[data-ds-dark-theme] [class*="brandMark"]::after,
+html body[data-ds-dark-theme] [class*="railMark"]::after {
+  background-image: url("/theme-sandrone/icon.png");
+  background-size: contain;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 6px rgba(199, 168, 110, 0.35));
+}
+
+/* The portrait lives in the empty `brandMark` slot holder; the stock mark next to
+   it is a separate glyph inside the identity/wordmark, so it has to be hidden or
+   the row reads as two icons. */
+html body[data-ds-dark-theme] [class*="brandIdentity"] > svg,
+html body[data-ds-dark-theme] [class*="brandName"] svg {
+  display: none;
+}
+
+/* The whale and the "deepseek HARNESS" lettering are a single SVG, so hiding the
+   mark hid the name with it. The name comes back as text beside the portrait. */
+html body[data-ds-dark-theme] [class*="brandIdentity"] {
+  display: inline-flex;
+  align-items: center;
+}
+
+html body[data-ds-dark-theme] [class*="brandIdentity"]::after {
+  content: "deepseek  HARNESS";
+  color: #ebe3d1;
+  font-family: var(--dsw-font-family, system-ui, sans-serif);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+/* Navigation rows: one ornament each, at a different size, so the column never
+   reads as a repeated stamp. */
+html body[data-ds-dark-theme] [class*="panelList"] > :nth-child(1) [class*="panelIcon"]::after,
+html body[data-ds-dark-theme] [class*="panelList"] > :nth-child(1) [class*="panelGlyph"]::after {
+  background-image: url("/theme-sandrone/burst.png");
+  background-size: 72%;
+}
+
+html body[data-ds-dark-theme] [class*="panelList"] > :nth-child(2) [class*="panelIcon"]::after,
+html body[data-ds-dark-theme] [class*="panelList"] > :nth-child(2) [class*="panelGlyph"]::after {
+  background-image: url("/theme-sandrone/gear.png");
+  background-size: 88%;
+}
+
+html body[data-ds-dark-theme] [class*="panelList"] > :nth-child(3) [class*="panelIcon"]::after,
+html body[data-ds-dark-theme] [class*="panelList"] > :nth-child(3) [class*="panelGlyph"]::after {
+  background-image: url("/theme-sandrone/iris.png");
+  background-size: 78%;
+}
+
+html body[data-ds-dark-theme] [class*="panelList"] > :nth-child(4) [class*="panelIcon"]::after,
+html body[data-ds-dark-theme] [class*="panelList"] > :nth-child(4) [class*="panelGlyph"]::after {
+  background-image: url("/theme-sandrone/strings.png");
+  background-size: 92%;
+}
+
+html body[data-ds-dark-theme] [class*="panelList"] > :nth-child(5) [class*="panelIcon"]::after,
+html body[data-ds-dark-theme] [class*="panelList"] > :nth-child(5) [class*="panelGlyph"]::after {
+  background-image: url("/theme-sandrone/cryo.png");
+  background-size: 84%;
+}
+
+html body[data-ds-dark-theme] [class*="panelList"] > :nth-child(6) [class*="panelIcon"]::after,
+html body[data-ds-dark-theme] [class*="panelList"] > :nth-child(6) [class*="panelGlyph"]::after {
+  background-image: url("/theme-sandrone/skill.png");
+  background-size: 76%;
+}
+
+/* Workspace rows: one mark for every workspace — present and future — so the
+   list reads as one family rather than a set of unrelated stamps.
+
+   `folder` is the SVG element itself. Pseudo-elements never render on SVG, and
+   giving it a display value reflowed the row (the labels were pushed left and
+   clipped), so the art is set as the element's own background and its drawing is
+   hidden — an SVG root is a replaced box CSS can paint behind. No layout change. */
+html body[data-ds-dark-theme] [class*="projectRow"] [class*="folder"] {
+  background: url("/theme-sandrone/strings.png") center / 82% no-repeat;
+}
+
+html body[data-ds-dark-theme] [class*="projectRow"] [class*="folder"] > * {
+  visibility: hidden;
+}
+
+
+@media (prefers-reduced-transparency: reduce) {
+  html body[data-ds-dark-theme] [class*="sidebarCol"] {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: #0b1017;
+  }
+}

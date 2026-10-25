@@ -1,0 +1,22 @@
+# OS noise
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# DSH installer backups (created next to cordis.patch.yml / package.json)
+*.bak-*
+*.bom-bak-*
+cordis.patch.yml.bak*
+
+# Node / package managers
+node_modules/
+pnpm-lock.yaml
+
+# Release artifacts (built outside the repo)
+dist/
+*.zip
+
+# Editors
+.vscode/
+.idea/
+*.swp
