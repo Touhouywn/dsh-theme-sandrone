@@ -12,12 +12,14 @@
 
 `assets/` 中的素材**不属于 MIT**，本包不提供额外再授权：
 
-- `burst.png`、`cryo.png`、`gear.png`、`icon.png`、`iris.png`、`opening.mp4`、`skill.png`、`strings.png`、`trace.mp4` 与上游 `assets/PROVENANCE.json` 中的对应文件逐字节一致；
+- `burst.png`、`cryo.png`、`gear.png`、`icon.png`、`iris.png`、`skill.png`、`strings.png`、`trace.mp4` 与上游 `assets/PROVENANCE.json` 中的对应文件逐字节一致；
 - `background.webp` 由上游 `assets/backgrounds/dark-mechanical.jpg` 转码；
 - `portrait.webp` 由上游 `assets/characters/sandrone/portrait.png` 转码；
-- `opening.json` 是由上游轮廓/签名数据整理出的派生数据。
+- `opening-art.webp` 由用户提供的 Wallpaper Engine 视频 `桑多涅_ai2x_fps60.mp4` 取帧、缩放为 2560×1440 WebP；
+- `opening.json` 是由上游轮廓/签名数据整理出的派生数据；
+- `opening-score.m4a` 是 Kevin MacLeod *Impact Moderato*（CC BY 4.0）的剪辑 + 原创合成音效；`opening-score-local.m4a` 额外混入从 B 站语音合集提取的片段，**不随公开仓库发布**。
 
-上游 `ASSET-LICENSE.md` 说明角色名称、形象及游戏美术保留原权利人权利；上游 `asset-edition.json` 明确写明 **不授予公开再分发许可**（`no public redistribution permission is granted by this code license`）。逐文件来源与 SHA-256 见发行包根目录的 `PROVENANCE.json`。
+上游 `ASSET-LICENSE.md` 说明角色名称、形象及游戏美术保留原权利人权利；上游 `asset-edition.json` 明确写明 **不授予公开再分发许可**（`no public redistribution permission is granted by this code license`）。逐文件来源与 SHA-256 见发行包根目录的 `PROVENANCE.json`，配乐与语音署名见 [CREDITS.md](CREDITS.md)。
 
 ## 声明
 

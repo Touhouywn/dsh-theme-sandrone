@@ -1,10 +1,10 @@
-# Sandrone · 人偶工坊 — install the theme and its sidebar entry.
+# Sandrone · 人偶工坊 — install the theme, its sidebar entry, and the persona.
 #
 #   pwsh -File .\install.ps1
 #   pwsh -File .\install.ps1 -Profile other
 #   pwsh -File .\install.ps1 -DshHome D:\dsh-data
 #
-# Installs both packages through their own, individually idempotent scripts.
+# Installs every package through its own, individually idempotent script.
 
 [CmdletBinding()]
 param(
@@ -17,6 +17,10 @@ $root = $PSScriptRoot
 
 Write-Host '== Sandrone theme ==' -ForegroundColor Cyan
 & (Join-Path $root 'dsh-theme-sandrone\install.ps1') -Profile $Profile -DshHome $DshHome
+
+Write-Host ''
+Write-Host '== Sandrone persona (conversation voice) ==' -ForegroundColor Cyan
+& (Join-Path $root 'dsh-plugin-sandrone-persona\install.ps1') -Profile $Profile -DshHome $DshHome
 
 Write-Host ''
 Write-Host '== Sandrone Workshop (sidebar entry) ==' -ForegroundColor Cyan

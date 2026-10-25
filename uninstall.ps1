@@ -1,10 +1,10 @@
-# Sandrone · 人偶工坊 — remove the theme and its sidebar entry.
+# Sandrone · 人偶工坊 — remove the theme, its sidebar entry, and the persona.
 #
 #   pwsh -File .\uninstall.ps1
 #   pwsh -File .\uninstall.ps1 -Purge     # also delete %DSH_HOME%\themes\sandrone
 #
 # The theme row and junction are removed by the theme's own uninstall script;
-# this wrapper then removes the Workshop row and junction.
+# this wrapper then removes the Workshop and persona rows and junctions.
 
 [CmdletBinding()]
 param(
@@ -18,9 +18,43 @@ $root = $PSScriptRoot
 $profileDir = Join-Path $DshHome "profiles\$Profile"
 $patch = Join-Path $profileDir 'cordis.patch.yml'
 $hubLink = Join-Path $profileDir 'node_modules\dsh-plugin-sandrone'
+$personaLink = Join-Path $profileDir 'node_modules\dsh-plugin-sandrone-persona'
 
 Write-Host '== Sandrone theme ==' -ForegroundColor Cyan
 & (Join-Path $root 'dsh-theme-sandrone\uninstall.ps1') -Profile $Profile -DshHome $DshHome -Purge:$Purge
+
+Write-Host ''
+Write-Host '== Sandrone persona (conversation voice) ==' -ForegroundColor Cyan
+
+# Drop the persona row. The marker is written by dsh-plugin-sandrone-persona\install.ps1.
+if (Test-Path -LiteralPath $patch) {
+  $raw = [System.IO.File]::ReadAllText($patch)
+  $pattern = '(?ms)^# ---- sandrone-persona:.*?^[ \t]+name: dsh-plugin-sandrone-persona[ \t]*\r?\n'
+  $next = [regex]::Replace($raw, $pattern, '')
+  if ($next -eq $raw) {
+    $next = [regex]::Replace($raw, '(?ms)^- insert:\r?\n(?:[ \t]+.*\r?\n)*?[ \t]+- id: sandrone-persona\r?\n(?:[ \t]+.*\r?\n)*?(?=^- |\z)', '')
+  }
+  if ($next -ne $raw) {
+    [System.IO.File]::WriteAllText($patch, $next, (New-Object System.Text.UTF8Encoding($false)))
+    Write-Host "patch    -> sandrone-persona row removed" -ForegroundColor Green
+  }
+  else {
+    Write-Host "patch    -> no sandrone-persona row found" -ForegroundColor Yellow
+  }
+}
+
+if (Test-Path -LiteralPath $personaLink) {
+  $existing = Get-Item -LiteralPath $personaLink -Force
+  if ($existing.LinkType) { $existing.Delete() } else { Remove-Item -LiteralPath $personaLink -Recurse -Force }
+  Write-Host "junction -> persona removed" -ForegroundColor Green
+}
+if ($Purge) {
+  $personaDest = Join-Path $DshHome 'plugins\sandrone-persona'
+  if (Test-Path -LiteralPath $personaDest) {
+    Remove-Item -LiteralPath $personaDest -Recurse -Force
+    Write-Host "files    -> $personaDest deleted" -ForegroundColor Green
+  }
+}
 
 Write-Host ''
 Write-Host '== Sandrone Workshop (sidebar entry) ==' -ForegroundColor Cyan

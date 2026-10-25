@@ -432,7 +432,6 @@ window.__ModuleLoader__.load({
        (already booted) UI, and leaves on its own.
        ------------------------------------------------------------------ */
     var OPENING_ID = 'sandrone-opening'
-    var OPENING_SEEN = 'sandrone-opening-v16'
     /** Result of the brand-slot registration, surfaced by the self-check. */
     var brandStatus = 'idle'
     /** Navigation glyphs painted with theme art so far. */
@@ -481,8 +480,78 @@ window.__ModuleLoader__.load({
       }
     }
 
-    /** Draw the full opening scene from `opening.json`. */
-    function renderOpening(root, data) {
+    /* ------------------------------------------------------------------
+       Cinematic opening (v2) — Sandrone · 人偶工坊
+       A boot sequence in the rhythm of the DeepSeek startup film: signature,
+       telemetry, line-art tracing, a hard impact, then the artwork and the
+       workshop wordmark. Every style is inline because the client kernel
+       recycles plugin <style> tags, so this overlay is styled inline only).
+       ------------------------------------------------------------------ */
+    var OPENING_V2_SEEN = 'sandrone-opening-v17'
+    var OPENING_V2_ART = '/theme-sandrone/opening-art.webp'
+    var OPENING_V2_SCORE = '/theme-sandrone/opening-score-local.m4a'
+    var OPENING_V2_SCORE_FALLBACK = '/theme-sandrone/opening-score.m4a'
+
+    /**
+     * Trace the vector outline and the signature for the cinematic opening.
+     * The outline starts after the boot telemetry has been on screen for a
+     * while, so the SVG work is not competing with the first paint.
+     * @param root - opening overlay.
+     * @param data - parsed opening.json.
+     * @param outlineDelay - milliseconds before the character outline starts.
+     */
+    function renderOpeningV2(root, data, outlineDelay) {
+      var reduce = false
+      try {
+        reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      } catch (error) {
+        reduce = false
+      }
+      var outline = root.querySelector('.so-outline')
+      var signature = root.querySelector('.so-signature')
+      if (outline !== null && data && data.outline) {
+        var groups = [
+          { className: 'so-outline-body', paths: data.outline.paths || [], delay: outlineDelay, stagger: reduce ? 0 : 13, duration: reduce ? 1 : 520, paint: { stroke: '#f0b064', width: '1.7' } },
+          { className: 'so-outline-face', paths: data.outline.facePaths || [], delay: outlineDelay + 1050, stagger: reduce ? 0 : 16, duration: reduce ? 1 : 440, paint: { stroke: '#ffe7c2', width: '1.35' } },
+          { className: 'so-outline-water', paths: data.outline.waterPaths || [], delay: outlineDelay + 1250, stagger: 0, duration: reduce ? 1 : 900, paint: { stroke: '#8ac4ee', width: '1.4' } },
+        ]
+        for (var index = 0; index < groups.length; index += 1) {
+          var group = groups[index]
+          var node = svgNode('g', { class: group.className })
+          node.style.opacity = group.className === 'so-outline-water' ? '.82' : '1'
+          outline.appendChild(node)
+          tracePaths(node, group.paths, group.delay, group.stagger, group.duration, group.paint)
+        }
+      }
+      if (signature !== null && data && data.signature && data.signature.paths) {
+        tracePaths(signature, data.signature.paths, reduce ? 0 : 0, reduce ? 0 : 95, reduce ? 1 : 540, {
+          stroke: '#efe2c4',
+          width: '2.5',
+        })
+      }
+    }
+
+    /**
+     * Play the cinematic opening once per page session.
+     *
+     * The overlay covers the window immediately, then runs a ~16 s boot:
+     * signature → telemetry → line-art → impact → artwork → wordmark. It is
+     * skippable at any moment (click or any key) and has a hard safety net.
+     * The score is one pre-mixed file, so picture and sound cannot drift.
+     */
+    function playOpeningCinematic() {
+      if (document.getElementById(OPENING_ID) !== null) return
+      var forced = false
+      try {
+        forced = window.location.hash.indexOf('opening') !== -1
+        if (!forced) {
+          if (window.sessionStorage.getItem(OPENING_V2_SEEN) === '1') return
+          window.sessionStorage.setItem(OPENING_V2_SEEN, '1')
+        }
+      } catch (error) {
+        // Storage unavailable: play it once per load.
+      }
+
       var reduce = false
       try {
         reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -490,220 +559,502 @@ window.__ModuleLoader__.load({
         reduce = false
       }
 
-      var outline = root.querySelector('.so-outline')
-      var signature = root.querySelector('.so-signature')
-      if (outline !== null && data.outline) {
-        // No per-path drop-shadow: 70 animated filters over a full-window SVG was
-        // the main source of stutter. Strokes are slightly thicker to keep the
-        // visual weight the glow used to provide.
-        var groups = [
-          { className: 'so-outline', paths: data.outline.paths || [], delay: 300, stagger: reduce ? 0 : 16, duration: reduce ? 1 : 620, paint: { stroke: '#f6ab5a', width: '1.8' } },
-          { className: 'so-face', paths: data.outline.facePaths || [], delay: 1500, stagger: reduce ? 0 : 18, duration: reduce ? 1 : 480, paint: { stroke: '#ffe3bb', width: '1.4' } },
-          { className: 'so-water', paths: data.outline.waterPaths || [], delay: 1700, stagger: 0, duration: reduce ? 1 : 900, paint: { stroke: '#8ac4ee', width: '1.5' } },
-        ]
-        for (var index = 0; index < groups.length; index += 1) {
-          var group = groups[index]
-          var node = svgNode('g', { class: group.className })
-          node.style.opacity = group.className === 'so-water' ? '.85' : '1'
-          outline.appendChild(node)
-          tracePaths(node, group.paths, reduce ? 0 : group.delay, group.stagger, group.duration, group.paint)
-        }
-      }
-      if (signature !== null && data.signature && data.signature.paths) {
-        tracePaths(signature, data.signature.paths, reduce ? 0 : 1350, reduce ? 0 : 100, reduce ? 1 : 560, {
-          stroke: '#e9dcbd',
-          width: '2.6',
-        })
-      }
-    }
-
-    /**
-     * Play the opening once per page session, then restore the UI underneath.
-     * Skips on click or Escape/Enter/Space; a hard timeout guarantees removal.
-     */
-    function playOpening() {
-      if (document.getElementById(OPENING_ID) !== null) return
-      var forced = false
-      try {
-        forced = window.location.hash.indexOf('opening') !== -1
-        if (!forced && OPENING_SEEN !== null) {
-          if (window.sessionStorage.getItem(OPENING_SEEN) === '1') return
-          window.sessionStorage.setItem(OPENING_SEEN, '1')
-        }
-      } catch (error) {
-        // Storage unavailable: play it once per load.
-      }
-
-      // No stylesheet at all: every element is laid out with inline styles
-      // below. A <style> tag here proved unreliable — the client kernel recycles
-      // tags it considers plugin-owned, which silently left the raw 1920x1080
-      // films unstyled and cropped by the window.
       var root = document.createElement('div')
       root.id = OPENING_ID
       root.style.cssText =
-        'position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:2147483000;overflow:hidden;transition:opacity .75s ease-out;' +
-          'background:radial-gradient(120% 85% at 50% 40%,#0c1219 0%,#05070b 70%),linear-gradient(180deg,rgba(3,5,9,0) 52%,rgba(3,5,9,.78) 100%)'
+        'position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:2147483000;overflow:hidden;background:#04060a;' +
+        'opacity:1;transition:opacity .9s ease-out,transform .9s ease-out;font-family:var(--dsw-font-family,"Segoe UI",sans-serif);' +
+        'color:#e9dfc9;user-select:none'
       root.innerHTML = [
-        '<video class="so-color" src="/theme-sandrone/opening.mp4" muted playsinline preload="auto"></video>',
-        '<div class="so-stage">',
-        '<video class="so-trace" src="/theme-sandrone/trace.mp4" muted playsinline preload="auto"></video>',
+        '<img class="so-art" alt="" decoding="async">',
+        '<div class="so-veil-a"></div>',
+        '<video class="so-trace" muted playsinline loop preload="auto" src="/theme-sandrone/trace.mp4"></video>',
+        '<div class="so-veil-b"></div>',
         '<svg class="so-outline" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice"></svg>',
+        '<div class="so-grain"></div>',
+        '<svg class="so-ring" viewBox="0 0 400 400" aria-hidden="true">',
+        '<circle cx="200" cy="200" r="186" fill="none" stroke="rgba(199,168,110,.22)" stroke-width="1" stroke-dasharray="1 7"></circle>',
+        '<circle cx="200" cy="200" r="154" fill="none" stroke="rgba(199,168,110,.30)" stroke-width="1" stroke-dasharray="86 190"></circle>',
+        '<circle cx="200" cy="200" r="118" fill="none" stroke="rgba(169,203,213,.16)" stroke-width="1"></circle>',
+        '</svg>',
+        '<div class="so-bignum">07</div>',
+        '<div class="so-brand"><b>MARIONETTE</b><i>WORKSHOP · SYS-07</i></div>',
+        '<div class="so-clock"><b>00:00</b><i>ELAPSED</i></div>',
+        '<div class="so-log">',
+        '<div class="so-logline"><span>›</span> 初始化 · 人偶工坊</div>',
+        '<div class="so-logline"><span>›</span> 载入变量 · 桑多涅</div>',
+        '<div class="so-logline"><span>›</span> 机构校准 · 人偶丝线</div>',
+        '<div class="so-logline"><span>›</span> 权限确认 · 工坊主</div>',
         '</div>',
-        '<div class="so-sign">',
-        '<svg class="so-signature" viewBox="0 0 1080 330" preserveAspectRatio="xMidYMid meet"></svg>',
+        '<div class="so-center">',
+        '<div class="so-kicker">THE MARIONETTE WORKSHOP</div>',
+        '<div class="so-headline">解算开始</div>',
+        '<div class="so-sub">FORM THROUGH CALCULATION</div>',
+        '</div>',
+        '<div class="so-progress"><div class="so-progress-fill"></div></div>',
+        '<div class="so-pct">000</div>',
+        '<div class="so-diag">CHASSIS 07 · NEURAL LATTICE · 12 NODES</div>',
+        '<div class="so-credit">SCORE · KEVIN MACLEOD · CC BY 4.0</div>',
+        '<div class="so-sign"><svg class="so-signature" viewBox="0 0 1080 330" preserveAspectRatio="xMidYMid meet"></svg>',
         '<div class="so-tagline">机巧镀形，万理澄清</div>',
-        '<div class="so-subtitle">MARIONETTE WORKSHOP</div>',
-        '</div>',
-        '<div class="so-skip">点击任意处 / 任意键 继续</div>',
+        '<div class="so-subtitle">MARIONETTE WORKSHOP</div></div>',
+        '<div class="so-flash"></div>',
+        '<div class="so-sound">♪ 点击启用声音</div>',
+        '<div class="so-skip">点击 / 任意键 跳过</div>',
+        '<audio class="so-score" preload="auto"></audio>',
+        '<div class="so-c so-c-tl"></div>',
+        '<div class="so-c so-c-tr"></div>',
+        '<div class="so-c so-c-bl"></div>',
+        '<div class="so-c so-c-br"></div>',
       ].join('')
-      // Mount on <html>: the app puts a transform on <body>, which makes that
-      // element the containing block for `position: fixed` and would size the
-      // overlay against the whole page instead of the window. If <html> turns
-      // out to be the transformed one, fall back to <body>.
       document.documentElement.appendChild(root)
       var mounted = root.getBoundingClientRect()
       if (mounted.width < window.innerWidth * 0.9 || mounted.height < window.innerHeight * 0.9) {
         document.body.appendChild(root)
       }
 
-      /** Lay out one opening element inline; the overlay owns no stylesheet. */
-      var styleOf = function (selector, css) {
+      var css = function (selector, text) {
         var node = root.querySelector(selector)
-        if (node !== null) node.style.cssText = css
+        if (node !== null) node.style.cssText = text
         return node
       }
-      var stageNode = styleOf(
-        '.so-stage',
-        'position:absolute;left:0;top:0;width:100%;height:100%;transition:opacity 1.1s ease-out',
+
+      var art = css(
+        '.so-art',
+        'position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;object-position:64% 46%;opacity:0;' +
+          'transform:scale(1.14);filter:saturate(1.05) contrast(1.03) brightness(.92);' +
+          'transition:opacity 1.4s ease-out,transform 19s cubic-bezier(.16,.42,.2,1),filter 1.4s ease-out;will-change:transform,opacity',
       )
-      styleOf(
+      var veilA = css(
+        '.so-veil-a',
+        'position:absolute;inset:0;background:radial-gradient(115% 80% at 64% 42%,rgba(4,6,10,.10) 0%,rgba(4,6,10,.62) 48%,#04060a 100%),' +
+          'linear-gradient(180deg,rgba(3,5,9,.94) 0%,rgba(3,5,9,.30) 40%,rgba(3,5,9,.92) 100%);opacity:1;transition:opacity 1.2s ease-out',
+      )
+      var trace = css(
         '.so-trace',
-        // No mask and no blend mode: masking a full-window video and screening it
-        // over another full-window video is the single most expensive thing this
-        // overlay could do, and it showed up as visible stutter mid-sequence.
-        'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.95',
+        'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;filter:brightness(.82) saturate(.9);' +
+          'transition:opacity 1.6s ease-out',
       )
-      styleOf('.so-outline', 'position:absolute;inset:0;width:100%;height:100%')
-      var signNode = styleOf(
+      var veilB = css(
+        '.so-veil-b',
+        'position:absolute;inset:0;background:radial-gradient(70% 60% at 62% 44%,rgba(120,180,210,.14) 0%,rgba(4,6,10,0) 58%),' +
+          'linear-gradient(180deg,rgba(4,6,10,.52) 0%,rgba(4,6,10,.04) 40%,rgba(4,6,10,.88) 100%);opacity:0;transition:opacity 1.4s ease-out',
+      )
+      var outline = css(
+        '.so-outline',
+        'position:absolute;inset:0;width:100%;height:100%;opacity:1;transition:opacity 1.2s ease-out',
+      )
+      css(
+        '.so-grain',
+        'position:absolute;inset:0;pointer-events:none;opacity:.42;mix-blend-mode:overlay;' +
+          'background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0px,rgba(255,255,255,.035) 1px,transparent 1px,transparent 3px)',
+      )
+      var ring = css(
+        '.so-ring',
+        'position:absolute;left:50%;top:44%;width:min(62vh,520px);height:min(62vh,520px);' +
+          'transform:translate(-50%,-50%) scale(1.35);opacity:0;transition:opacity 1.6s ease-out,transform 15s cubic-bezier(.16,.42,.2,1)',
+      )
+      css(
+        '.so-bignum',
+        'position:absolute;right:-1vw;top:50%;transform:translateY(-50%);font-size:34vh;line-height:.8;font-weight:200;' +
+          'letter-spacing:-.04em;color:transparent;-webkit-text-stroke:1px rgba(199,168,110,.15);opacity:.55;font-family:ui-monospace,monospace',
+      )
+      var brand = css(
+        '.so-brand',
+        'position:absolute;left:34px;top:calc(24px + env(safe-area-inset-top));opacity:0;transition:opacity .9s ease-out;font-family:ui-monospace,monospace',
+      )
+      css('.so-brand b', 'display:block;font-size:13px;letter-spacing:.42em;color:rgba(232,216,182,.86);font-weight:500')
+      css('.so-brand i', 'display:block;margin-top:7px;font-size:8px;letter-spacing:.34em;color:rgba(199,168,110,.55);font-style:normal')
+      var clock = css(
+        '.so-clock',
+        'position:absolute;right:34px;top:calc(22px + env(safe-area-inset-top));text-align:right;font-family:ui-monospace,monospace;opacity:0;transition:opacity .9s ease-out',
+      )
+      var clockNum = css(
+        '.so-clock b',
+        'display:block;font-size:26px;letter-spacing:.08em;color:rgba(235,227,209,.86);font-variant-numeric:tabular-nums;font-weight:300',
+      )
+      css('.so-clock i', 'display:block;font-size:8px;letter-spacing:.3em;color:rgba(199,168,110,.5);font-style:normal;margin-top:4px')
+      css(
+        '.so-log',
+        'position:absolute;left:7.5vw;bottom:calc(30px + env(safe-area-inset-bottom));font-family:ui-monospace,monospace;' +
+          'font-size:10px;letter-spacing:.14em;color:rgba(235,227,209,.5);line-height:2.1',
+      )
+      css('.so-logline', 'opacity:0;transform:translateX(-8px);transition:opacity .5s ease-out,transform .5s ease-out')
+      css('.so-logline span', 'color:#c7a86e;margin-right:8px')
+      css(
+        '.so-center',
+        'position:absolute;left:7.5vw;top:50%;transform:translateY(-50%);width:min(46vw,720px);text-align:left;' +
+          'font-family:var(--dsw-font-family,"Segoe UI",sans-serif)',
+      )
+      var kicker = css(
+        '.so-kicker',
+        'font-size:9px;letter-spacing:.6em;text-indent:.6em;color:rgba(199,168,110,.75);margin-bottom:22px;font-family:ui-monospace,monospace',
+      )
+      var headline = css(
+        '.so-headline',
+        'font-size:clamp(38px,4.8vw,72px);font-weight:200;letter-spacing:.12em;color:#f2e8d4;' +
+          'text-shadow:0 0 40px rgba(199,168,110,.28),0 2px 30px rgba(0,0,0,.6);line-height:1.1;' +
+          'transition:opacity .32s ease-out,transform .32s ease-out;opacity:1;transform:translateY(0)',
+      )
+      var sub = css(
+        '.so-sub',
+        'margin-top:14px;font-size:9px;letter-spacing:.38em;color:rgba(235,227,209,.42);font-family:ui-monospace,monospace',
+      )
+      var progress = css(
+        '.so-progress',
+        'position:absolute;left:7.5vw;bottom:calc(18vh + env(safe-area-inset-bottom));' +
+          'width:min(34vw,400px);height:1px;background:rgba(199,168,110,.18);opacity:0;transition:opacity .8s ease-out',
+      )
+      var progressFill = css(
+        '.so-progress-fill',
+        'height:100%;width:0%;background:linear-gradient(90deg,rgba(199,168,110,.35),#c7a86e,#f0e0bd);' +
+          'box-shadow:0 0 12px rgba(199,168,110,.55);transition:width .9s cubic-bezier(.2,.7,.2,1)',
+      )
+      var pct = css(
+        '.so-pct',
+        'position:absolute;left:calc(7.5vw + min(34vw,400px) + 14px);bottom:calc(18vh + env(safe-area-inset-bottom) - 9px);' +
+          'font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.18em;color:rgba(199,168,110,.7);' +
+          'opacity:0;transition:opacity .8s ease-out;font-variant-numeric:tabular-nums',
+      )
+      css(
+        '.so-credit',
+        'position:absolute;right:34px;bottom:calc(14px + env(safe-area-inset-bottom));font-family:ui-monospace,monospace;' +
+          'font-size:7px;letter-spacing:.18em;color:rgba(199,168,110,.26)',
+      )
+      var diag = css(
+        '.so-diag',
+        'position:absolute;right:34px;bottom:calc(30px + env(safe-area-inset-bottom));font-family:ui-monospace,monospace;' +
+          'font-size:8px;letter-spacing:.22em;color:rgba(199,168,110,.32);opacity:0;transition:opacity .8s ease-out',
+      )
+      var sign = css(
         '.so-sign',
-        'position:absolute;left:50%;bottom:5vh;transform:translateX(-50%);display:grid;justify-items:center;gap:6px;opacity:0;visibility:hidden;transition:opacity .9s ease-out',
+        'position:absolute;left:50%;bottom:calc(6vh + env(safe-area-inset-bottom));transform:translateX(-50%);' +
+          'display:grid;justify-items:center;gap:8px;opacity:0;visibility:hidden;transition:opacity 1.1s ease-out;text-align:center',
       )
-      styleOf('.so-signature', 'display:block;width:min(34vw,300px);height:auto;aspect-ratio:1080/330')
-      styleOf(
+      css(
+        '.so-signature',
+        'display:block;width:min(30vw,260px);height:auto;aspect-ratio:1080/330;filter:drop-shadow(0 0 10px rgba(199,168,110,.35))',
+      )
+      var tagline = css(
         '.so-tagline',
-        'font-size:15px;letter-spacing:.42em;text-indent:.42em;color:#e3d4b1;font-family:var(--dsw-font-family,serif)',
+        'font-size:14px;letter-spacing:.44em;text-indent:.44em;color:#e8d9b8;font-family:var(--dsw-font-family,serif);' +
+          'text-shadow:0 0 18px rgba(199,168,110,.35);opacity:.55;transition:opacity .8s ease-out',
       )
-      styleOf('.so-subtitle', 'font-size:9px;letter-spacing:.5em;text-indent:.5em;color:rgba(199,168,110,.55)')
-      styleOf(
+      var subtitle = css(
+        '.so-subtitle',
+        'font-size:8px;letter-spacing:.52em;text-indent:.52em;color:rgba(199,168,110,.55);font-family:ui-monospace,monospace;opacity:.6',
+      )
+      var flash = css(
+        '.so-flash',
+        'position:absolute;inset:0;pointer-events:none;opacity:0;' +
+          'background:radial-gradient(circle at 62% 44%,rgba(255,246,226,.95) 0%,rgba(228,196,140,.55) 24%,rgba(199,168,110,0) 62%)',
+      )
+      var sound = css(
+        '.so-sound',
+        'position:absolute;left:7.5vw;bottom:calc(92px + env(safe-area-inset-bottom));padding:7px 12px;' +
+          'border:1px solid rgba(199,168,110,.35);background:rgba(8,11,17,.55);color:rgba(235,227,209,.8);' +
+          'font-family:ui-monospace,monospace;font-size:9px;letter-spacing:.18em;opacity:0;transition:opacity .4s ease-out;' +
+          'cursor:pointer;pointer-events:auto;backdrop-filter:blur(6px)',
+      )
+      css(
         '.so-skip',
-        'position:absolute;right:22px;bottom:16px;font-size:11px;letter-spacing:.18em;color:rgba(235,227,209,.26)',
+        'position:absolute;right:34px;bottom:calc(56px + env(safe-area-inset-bottom));font-family:ui-monospace,monospace;' +
+          'font-size:9px;letter-spacing:.18em;color:rgba(235,227,209,.28)',
       )
+      css('.so-score', 'display:none')
+      var cornerBase =
+        'position:absolute;width:26px;height:26px;border-color:rgba(199,168,110,.28);border-style:solid;border-width:0;' +
+        'opacity:0;transition:opacity 1s ease-out'
+      var tl = css('.so-c-tl', cornerBase + ';left:20px;top:calc(18px + env(safe-area-inset-top));border-left-width:1px;border-top-width:1px')
+      var tr = css('.so-c-tr', cornerBase + ';right:20px;top:calc(18px + env(safe-area-inset-top));border-right-width:1px;border-top-width:1px')
+      var bl = css('.so-c-bl', cornerBase + ';left:20px;bottom:calc(18px + env(safe-area-inset-bottom));border-left-width:1px;border-bottom-width:1px')
+      var br = css('.so-c-br', cornerBase + ';right:20px;bottom:calc(18px + env(safe-area-inset-bottom));border-right-width:1px;border-bottom-width:1px')
 
-      // The colour film is revealed once the trace has finished drawing; it is
-      // only started shortly before that, so two 1080p decoders never compete
-      // for the whole sequence.
-      var colorFilm = root.querySelector('.so-color')
-      if (colorFilm !== null) {
-        colorFilm.style.cssText =
-          'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;visibility:hidden;transition:opacity 1s ease-out'
+      var score = root.querySelector('.so-score')
+      if (score !== null) {
+        // Prefer the local score (BGM + voice clips). A public checkout ships
+        // only the BGM bed, so a 404 falls back without a second thought.
+        score.addEventListener(
+          'error',
+          function () {
+            if (score.getAttribute('data-fallback') === '1') return
+            score.setAttribute('data-fallback', '1')
+            score.src = OPENING_V2_SCORE_FALLBACK
+            score.load()
+          },
+          true,
+        )
+        score.src = OPENING_V2_SCORE
+        score.volume = 0.88
+        try {
+          score.load()
+        } catch (error) {
+          // A missing score is not fatal: the sequence stays visual.
+        }
       }
-      var traceFilm = root.querySelector('.so-trace')
+      if (art !== null) {
+        art.onerror = function () {
+          art.style.display = 'none'
+        }
+        art.src = OPENING_V2_ART
+      }
 
+      var logs = root.querySelectorAll('.so-logline')
+      var timers = []
+      var clockTimer = null
+      var startedAt = 0
       var finished = false
-      var timer = null
-      var reveal = null
+      var audioStarted = false
+
+      var at = function (delay, callback) {
+        timers.push(setTimeout(callback, delay))
+      }
+      var showLog = function (index) {
+        if (logs[index] === undefined) return
+        logs[index].style.opacity = '1'
+        logs[index].style.transform = 'translateX(0)'
+      }
+      var setProgress = function (value) {
+        if (progressFill !== null) progressFill.style.width = value + '%'
+        if (pct !== null) pct.textContent = String(value).padStart(3, '0')
+      }
+      var glitch = function () {
+        if (headline === null) return
+        headline.style.textShadow =
+          '2px 0 rgba(153,62,80,.55),-2px 0 rgba(169,203,213,.45),0 0 40px rgba(199,168,110,.28)'
+        setTimeout(function () {
+          if (headline !== null) headline.style.textShadow = '0 0 40px rgba(199,168,110,.28),0 2px 30px rgba(0,0,0,.6)'
+        }, 160)
+      }
+      var setHeadline = function (text, caption) {
+        if (headline === null) return
+        headline.style.opacity = '0'
+        headline.style.transform = 'translateY(10px)'
+        setTimeout(function () {
+          if (finished || headline === null) return
+          headline.textContent = text
+          if (sub !== null && caption !== undefined) sub.textContent = caption
+          headline.style.opacity = '1'
+          headline.style.transform = 'translateY(0)'
+          glitch()
+        }, 170)
+      }
+      var pulse = function () {
+        if (flash === null) return
+        flash.style.transition = 'none'
+        flash.style.opacity = '.95'
+        requestAnimationFrame(function () {
+          if (flash === null) return
+          flash.style.transition = 'opacity 1.15s ease-out'
+          flash.style.opacity = '0'
+        })
+      }
+      var reveal = function () {
+        if (art !== null) {
+          art.style.opacity = '1'
+          art.style.transform = 'scale(1.02)'
+          art.style.filter = 'saturate(1.06) contrast(1.03) brightness(1.02)'
+        }
+        if (veilA !== null) veilA.style.opacity = '.18'
+        if (veilB !== null) veilB.style.opacity = '1'
+        if (trace !== null) trace.style.opacity = '0'
+        if (outline !== null) outline.style.opacity = '0'
+        if (ring !== null) {
+          ring.style.opacity = '.55'
+          ring.style.transform = 'translate(-50%,-50%) scale(1)'
+        }
+        if (sign !== null) {
+          sign.style.visibility = 'visible'
+          sign.style.opacity = '1'
+        }
+        pulse()
+        setProgress(100)
+        setHeadline('机巧镀形', 'FORM THROUGH CALCULATION')
+        if (kicker !== null) kicker.textContent = 'THE MARIONETTE WORKSHOP'
+      }
+      var tryScore = function () {
+        if (score === null || audioStarted) return
+        audioStarted = true
+        var played = score.play()
+        if (played && typeof played.then === 'function') {
+          played
+            .then(function () {
+              if (sound !== null) sound.style.opacity = '0'
+            })
+            .catch(function () {
+              audioStarted = false
+              if (sound !== null) sound.style.opacity = '1'
+            })
+        }
+      }
+      var updateClock = function () {
+        if (clockNum === null || startedAt === 0) return
+        var seconds = Math.min(99, Math.floor((performance.now() - startedAt) / 1000))
+        clockNum.textContent = '00:' + String(seconds).padStart(2, '0')
+      }
+
       var finish = function () {
         if (finished) return
         finished = true
-        if (timer !== null) clearTimeout(timer)
-        if (reveal !== null) clearTimeout(reveal)
+        for (var index = 0; index < timers.length; index += 1) clearTimeout(timers[index])
+        if (clockTimer !== null) clearInterval(clockTimer)
         root.removeEventListener('click', onSkip)
         document.removeEventListener('keydown', onKey, true)
-        // Hand over the way the skin does: the whole plate eases back and
-        // dissolves instead of cutting, so skipping lands in the app smoothly.
-        root.style.transition = 'opacity .95s ease-out, transform .95s ease-out'
-        root.style.transform = 'scale(1.025)'
+        if (score !== null) {
+          try {
+            score.pause()
+            score.removeAttribute('src')
+            score.load()
+          } catch (error) {
+            // Releasing media is best-effort.
+          }
+        }
+        if (trace !== null) {
+          try {
+            trace.pause()
+            trace.removeAttribute('src')
+            trace.load()
+          } catch (error) {
+            // Releasing the trace video is best-effort.
+          }
+        }
+        root.style.transition = 'opacity .9s ease-out,transform .9s ease-out'
+        root.style.opacity = '0'
+        root.style.transform = 'scale(1.03)'
         root.setAttribute('data-leaving', '')
         setTimeout(function () {
-          var playing = root.querySelectorAll('video')
-          for (var index = 0; index < playing.length; index += 1) {
-            try {
-              playing[index].pause()
-              playing[index].removeAttribute('src')
-              playing[index].load()
-            } catch (error) {
-              // Releasing media is best-effort.
-            }
-          }
           root.remove()
-        }, 1000)
+        }, 950)
       }
-      var onSkip = function () { finish() }
+      var onSkip = function () {
+        finish()
+      }
       var onKey = function (event) {
-        // Any key continues, the way the skin's opening accepts a keystroke.
         if (event.key !== undefined) finish()
       }
       root.addEventListener('click', onSkip)
       document.addEventListener('keydown', onKey, true)
+      if (sound !== null) {
+        sound.addEventListener('click', function (event) {
+          event.stopPropagation()
+          tryScore()
+        })
+      }
       // Safety net: the cover never outlives this, whatever happens below.
-      timer = setTimeout(finish, 14000)
+      var safety = setTimeout(finish, 22000)
+      timers.push(safety)
 
-      /**
-       * Start the sequence. The cover is already opaque on screen while the
-       * app finishes its first paint, so the conversation page is never shown
-       * before the opening — the animation just needs the shell to be ready
-       * for its timing to be visible.
-       */
-      var startSequence = function () {
+      var startTimeline = function () {
         if (finished) return
-        // Only the trace plays for the first stretch. The colour film is 1080p
-        // too, and decoding both at once starved the compositor — that is what
-        // the visible stutter mid-sequence came from.
-        if (traceFilm !== null) {
-          traceFilm.muted = true
-          // Only the first 2.6 s are used, so there is no loop point to glitch
-          // on and no re-decode of the clip's tail.
-          traceFilm.loop = false
-          var traceStarted = traceFilm.play()
-          if (traceStarted && typeof traceStarted.catch === 'function') traceStarted.catch(function () {})
-        }
-        if (colorFilm !== null) {
-          setTimeout(function () {
-            if (finished) return
-            colorFilm.muted = true
-            var colorStarted = colorFilm.play()
-            if (colorStarted && typeof colorStarted.catch === 'function') colorStarted.catch(function () {})
-          }, 1800)
-        }
-        reveal = setTimeout(function () {
-          if (colorFilm !== null) {
-            colorFilm.style.visibility = 'visible'
-            colorFilm.style.opacity = '1'
-          }
-          if (stageNode !== null) stageNode.style.opacity = '0'
-          if (signNode !== null) {
-            signNode.style.visibility = 'visible'
-            signNode.style.opacity = '1'
-          }
-          root.setAttribute('data-color', '')
-          // The trace is invisible after its fade; stop decoding it.
-          if (traceFilm !== null) setTimeout(function () { traceFilm.pause() }, 1200)
-        }, 2600)
+        startedAt = performance.now()
+        clockTimer = setInterval(updateClock, 200)
+        at(120, function () {
+          if (brand !== null) brand.style.opacity = '1'
+          if (clock !== null) clock.style.opacity = '1'
+          if (diag !== null) diag.style.opacity = '1'
+          if (tl !== null) tl.style.opacity = '1'
+          if (tr !== null) tr.style.opacity = '1'
+          if (bl !== null) bl.style.opacity = '1'
+          if (br !== null) br.style.opacity = '1'
+          if (progress !== null) progress.style.opacity = '1'
+          if (pct !== null) pct.style.opacity = '1'
+        })
+        at(320, function () {
+          tryScore()
+        })
+        at(520, function () {
+          showLog(0)
+        })
+        at(1350, function () {
+          setHeadline('解算开始', 'INITIALIZING')
+          setProgress(6)
+        })
+        at(1850, function () {
+          if (trace === null) return
+          trace.style.opacity = '.55'
+          var played = trace.play()
+          if (played && typeof played.catch === 'function') played.catch(function () {})
+        })
+        at(2350, function () {
+          showLog(1)
+          setProgress(14)
+        })
+        at(3050, function () {
+          setHeadline('载入变量', 'LOADING VARIABLES')
+          setProgress(26)
+        })
+        at(3950, function () {
+          showLog(2)
+          setProgress(40)
+        })
+        at(5050, function () {
+          setHeadline('机构校准', 'CALIBRATING CHASSIS')
+          setProgress(54)
+        })
+        at(6050, function () {
+          showLog(3)
+          setProgress(68)
+        })
+        at(6950, function () {
+          setHeadline('进程良好', 'PROCESS NOMINAL')
+          setProgress(84)
+        })
+        at(8350, function () {
+          setHeadline('析构万理', 'DECONSTRUCTING FORM')
+          setProgress(94)
+        })
+        at(9600, reveal)
+        at(11250, function () {
+          if (kicker !== null) kicker.textContent = 'WELCOME TO'
+          setHeadline('人偶工坊', 'THE MARIONETTE WORKSHOP')
+        })
+        at(12900, function () {
+          if (tagline !== null) tagline.style.opacity = '1'
+          if (subtitle !== null) subtitle.style.opacity = '1'
+          if (diag !== null) diag.textContent = 'ACCESS GRANTED · WORKSHOP MASTER · 桑多涅'
+        })
+        at(14900, function () {
+          root.style.opacity = '0'
+          root.style.transform = 'scale(1.03)'
+        })
+        at(16000, finish)
 
+        if (reduce) {
+          // Respect reduced motion: show the finished plate, then leave.
+          for (var index = 0; index < timers.length; index += 1) clearTimeout(timers[index])
+          timers.length = 0
+          if (clockTimer !== null) clearInterval(clockTimer)
+          if (brand !== null) brand.style.opacity = '1'
+          if (clock !== null) clock.style.opacity = '1'
+          if (progress !== null) progress.style.opacity = '1'
+          if (pct !== null) pct.style.opacity = '1'
+          reveal()
+          if (headline !== null) {
+            headline.textContent = '人偶工坊'
+            headline.style.opacity = '1'
+            headline.style.transform = 'translateY(0)'
+          }
+          if (kicker !== null) kicker.textContent = 'WELCOME TO'
+          setTimeout(finish, 3400)
+        }
+      }
+
+      var loadScene = function () {
         fetch('/theme-sandrone/opening.json', { cache: 'no-store' })
-          .then(function (response) { return response.json() })
+          .then(function (response) {
+            return response.json()
+          })
           .then(function (data) {
             if (finished) return
-            renderOpening(root, data)
-            setTimeout(finish, 5600)
+            renderOpeningV2(root, data, 2600)
           })
           .catch(function () {
-            // No scene data: the colour film still carries the opening.
-            setTimeout(finish, 5200)
+            // No scene data: the artwork, telemetry and score still carry it.
           })
       }
 
-      whenWindowShown(startSequence, 12000)
+      loadScene()
+      whenWindowShown(startTimeline, 12000)
     }
 
     /**
@@ -1070,7 +1421,7 @@ window.__ModuleLoader__.load({
       // A theme bug must never take the renderer down with it: a missing or
       // failed opening is an acceptable outcome, a thrown mount is not.
       try {
-        playOpening()
+        playOpeningCinematic()
       } catch (error) {
         // Continue straight to the working interface.
       }

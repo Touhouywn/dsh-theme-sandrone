@@ -16,6 +16,16 @@ pnpm-lock.yaml
 dist/
 *.zip
 
+# Local voice mix (third-party voice clips; not redistributable)
+dsh-theme-sandrone/assets/opening-score-local.m4a
+*.build.wav
+
+# Research material and screenshot output
+.research/
+
+# DSH ops lock files that appear when file tools touch a directory
+.dsh-ops-update-*.lock
+
 # Editors
 .vscode/
 .idea/

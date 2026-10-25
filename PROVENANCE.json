@@ -1,6 +1,6 @@
 {
   "package": "dsh-theme-sandrone",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "upstream": {
     "repo": "https://github.com/fengye337/sandrone-codex",
     "commit": "8574a24c7e3e226a49cb8dd1b4b54e22874fb129",
@@ -68,14 +68,6 @@
       "license": "third-party asset derivation; not MIT"
     },
     {
-      "file": "assets/opening.mp4",
-      "sha256": "539af561ef48548369bc8acf98bdb654e36b0beb8739a2e52e71b6a5d9804f18",
-      "source": "assets/motion/sandrone-loop-1080p.mp4",
-      "sourceSha256": "539af561ef48548369bc8acf98bdb654e36b0beb8739a2e52e71b6a5d9804f18",
-      "transform": "none",
-      "license": "third-party asset; not MIT"
-    },
-    {
       "file": "assets/portrait.webp",
       "sha256": "6be615d621244cad1ada469df9cc48c776ecbfea9b4f436806f699b9a9e30f39",
       "source": "assets/characters/sandrone/portrait.png",
@@ -106,6 +98,22 @@
       "sourceSha256": "039615bf2af549ba23514af80db3e21bad3b2fb3602f158cd1a21d22942677ca",
       "transform": "none",
       "license": "third-party asset; not MIT"
+    },
+    {
+      "file": "assets/opening-art.webp",
+      "sha256": "db5d687a6b1c9c34016b57d71a87410a9f3f2ec879063b3001964d3593f924ca",
+      "source": "user-provided Wallpaper Engine video 桑多涅_ai2x_fps60.mp4 (frame at 0:04)",
+      "sourceSha256": "f5709404ec01e9df33c9da0667050d9b17efcd57f32e4862852d40664579738e",
+      "transform": "4K frame -> 2560x1440 WebP quality 88",
+      "license": "third-party asset; not MIT"
+    },
+    {
+      "file": "assets/opening-score.m4a",
+      "sha256": "4f8d60c97686503ae0bf80fb03cdf141e9abdf1e6f67da50d0f0505f6abeaddf",
+      "source": "Kevin MacLeod - Impact Moderato (incompetech.com) + original synthesized SFX",
+      "sourceSha256": "a85d378af027d75014be4a95b43007b19e03b06693c4b4ad72594cf392f4bc1c",
+      "transform": "0:02.4-0:19.0 excerpt, fades, original SFX layering, AAC 192 kbps",
+      "license": "music CC BY 4.0; original SFX MIT"
     }
   ]
 }

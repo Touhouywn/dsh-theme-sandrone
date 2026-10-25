@@ -1,0 +1,5 @@
+- insert:
+    - id: sandrone-persona
+      name: dsh-plugin-sandrone-persona
+      config:
+        enabled: true

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sandrone opening — preview</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #04060a; overflow: hidden; }
+      #shell { position: fixed; inset: 0; background: #080b11; }
+    </style>
+  </head>
+  <body>
+    <div id="shell" data-shell-bottom></div>
+    <script>
+      window.__ModuleLoader__ = {
+        load: function (entry) { window.__sandroneEntry = entry }
+      }
+      // Headless Edge has no window focus; the opening waits for either focus
+      // or three compositor frames with a shell node, so both paths work.
+      document.hasFocus = function () { return true }
+    </script>
+    <script src="/theme-sandrone/client.js"></script>
+    <script>
+      (function () {
+        var entry = window.__sandroneEntry
+        if (!entry) { document.body.dataset.error = 'entry-missing'; return }
+        var exports = entry.factory(function () { return {} })
+        var ctx = {
+          effect: function (fn) { try { return fn() } catch (error) { return function () {} } },
+          inject: function (_deps, callback) { try { return callback(ctx) } catch (error) { return function () {} } },
+          get: function () { return undefined }
+        }
+        try {
+          exports.apply(ctx)
+        } catch (error) {
+          document.body.dataset.error = 'apply-failed'
+          document.body.dataset.errorMessage = String(error && error.message)
+        }
+      })()
+    </script>
+  </body>
+</html>

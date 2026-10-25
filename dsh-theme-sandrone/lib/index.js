@@ -35,8 +35,10 @@ const FILES = new Map([
   ['theme.css', { file: join(PLUGIN_ROOT, 'theme', 'theme.css'), type: 'text/css; charset=utf-8' }],
   ['background.webp', { file: join(PLUGIN_ROOT, 'assets', 'background.webp'), type: 'image/webp' }],
   ['opening.json', { file: join(PLUGIN_ROOT, 'assets', 'opening.json'), type: 'application/json; charset=utf-8' }],
+  ['opening-art.webp', { file: join(PLUGIN_ROOT, 'assets', 'opening-art.webp'), type: 'image/webp' }],
+  ['opening-score.m4a', { file: join(PLUGIN_ROOT, 'assets', 'opening-score.m4a'), type: 'audio/mp4' }],
+  ['opening-score-local.m4a', { file: join(PLUGIN_ROOT, 'assets', 'opening-score-local.m4a'), type: 'audio/mp4' }],
   ['trace.mp4', { file: join(PLUGIN_ROOT, 'assets', 'trace.mp4'), type: 'video/mp4' }],
-  ['opening.mp4', { file: join(PLUGIN_ROOT, 'assets', 'opening.mp4'), type: 'video/mp4' }],
   ['icon.png', { file: join(PLUGIN_ROOT, 'assets', 'icon.png'), type: 'image/png' }],
   ['gear.png', { file: join(PLUGIN_ROOT, 'assets', 'gear.png'), type: 'image/png' }],
   ['iris.png', { file: join(PLUGIN_ROOT, 'assets', 'iris.png'), type: 'image/png' }],
@@ -159,9 +161,39 @@ async function serveAsset(pathname, req, res) {
     return
   }
   const body = await readFile(entry.file)
+  const size = body.byteLength
+
+  // Range support: Chromium asks for `bytes=0-` before it will stream a score,
+  // and seeking within the trace film needs 206 responses. The allow-list above
+  // still decides what can be requested at all.
+  const range = req.headers.range
+  if (typeof range === 'string' && range.startsWith('bytes=')) {
+    const [rawStart, rawEnd] = range.slice(6).split('-')
+    let start = rawStart === '' ? size - Number(rawEnd) : Number(rawStart)
+    let end = rawStart === '' || rawEnd === '' || rawEnd === undefined ? size - 1 : Number(rawEnd)
+    if (Number.isFinite(start) && Number.isFinite(end) && start >= 0 && start <= end && start < size) {
+      end = Math.min(end, size - 1)
+      const chunk = body.subarray(start, end + 1)
+      res.writeHead(206, {
+        'content-type': entry.type,
+        'content-length': String(chunk.byteLength),
+        'content-range': `bytes ${start}-${end}/${size}`,
+        'accept-ranges': 'bytes',
+        'cache-control': 'no-cache',
+        etag,
+      })
+      res.end(req.method === 'HEAD' ? undefined : chunk)
+      return
+    }
+    res.writeHead(416, { 'content-range': `bytes */${size}`, 'cache-control': 'no-cache' })
+    res.end()
+    return
+  }
+
   res.writeHead(200, {
     'content-type': entry.type,
-    'content-length': String(body.byteLength),
+    'content-length': String(size),
+    'accept-ranges': 'bytes',
     'cache-control': 'no-cache',
     etag,
   })
