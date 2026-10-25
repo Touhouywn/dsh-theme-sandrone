@@ -16,9 +16,26 @@ pnpm-lock.yaml
 dist/
 *.zip
 
-# Local voice mix (third-party voice clips; not redistributable)
-dsh-theme-sandrone/assets/opening-score-local.m4a
+# Local build leftovers
 *.build.wav
+
+# Secrets and local environment — never commit real keys
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+id_rsa*
+id_ed25519*
+.npmrc
+.pypirc
+.netrc
+secrets.*
+credentials.*
+*.log
 
 # Research material and screenshot output
 .research/

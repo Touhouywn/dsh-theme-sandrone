@@ -25,7 +25,7 @@
 | 目录 | 作用 |
 | --- | --- |
 | `dsh-theme-sandrone/` | 主题本体：黑金配色、桑多涅立绘、玻璃侧栏、电影式开屏 |
-| `dsh-plugin-sandrone/` | 可选的左侧栏「桑多涅工坊」入口：主题状态、配色、重播开屏 |
+| `dsh-plugin-sandrone/` | 可选的左侧栏「桑多涅工坊」入口：主题状态、配色、重播开屏、语气开关 |
 | `dsh-plugin-sandrone-persona/` | 对话语气：可开关的系统提示段，让回复带上桑多涅的口吻 |
 
 ## 特性
@@ -138,7 +138,7 @@ pwsh -File .\uninstall.ps1 -Purge    # 连同 ~/.dsh/themes/sandrone 与 ~/.dsh/
 | 12.9s | 签名、`机巧镀形，万理澄清`、`ACCESS GRANTED` |
 | 16.0s | 整层淡出，交出工作界面 |
 
-点击 / `Esc` / `Enter` / 空格跳过，22 秒硬兜底。地址带 `#opening` 可强制重播。配音在 4.25s / 5.65s / 7.05s / 9.75s / 11.45s 落点，和 HUD 文案对齐；公开版只带配乐，本地版才混入语音（见[素材、许可与声明](#素材许可与声明)）。
+点击 / `Esc` / `Enter` / 空格跳过，22 秒硬兜底。地址带 `#opening` 可强制重播。配音在 4.25s / 5.65s / 7.05s / 9.75s / 11.45s 落点，和 HUD 文案对齐；完整版（`opening-score-local.m4a`）带语音，删掉它就会自动回退到无人声的 `opening-score.m4a`。
 
 ## 工作原理
 
@@ -179,13 +179,15 @@ CSS 与 JSON 资源带 `no-cache` + ETag，改完刷新页面（Ctrl+R）即可�
 ├── ASSET-LICENSE.md            # 第三方素材权利说明
 ├── THIRD-PARTY-NOTICES.md
 ├── CREDITS.md                  # 配乐 / 语音 / 上游署名
+├── SECURITY.md                 # 安全策略与密钥处理
 ├── PROVENANCE.json             # 素材逐文件来源、SHA-256、转换说明
 ├── NOTICE.md
 ├── install.ps1 / uninstall.ps1 # 一键安装 / 卸载（三个包）
-├── docs/                       # README 截图
+├── docs/                       # README 截图、配乐试听、发布检查清单
 ├── preview/                    # 开屏离线预览页与本地静态服务
 ├── tools/
 │   ├── build-opening-media.py  # 从 4K 视频/BGM/语音构建开屏美术与配乐
+│   ├── build-release.py        # 生成 dist zip 与 SHA-256
 │   └── ...
 ├── dsh-theme-sandrone/
 │   ├── package.json            # DSH bundle + client 声明
@@ -258,25 +260,28 @@ python tools/build-opening-media.py --bgm impact.wav `
 
 ## 素材、许可与声明
 
-**代码 MIT，素材不是。** 请先读这一段再公开分发。
+**代码 MIT，素材不是。** 请先读这一段再转载或再分发。
 
 - 本仓库新增的 DSH 移植代码（`lib/`、`theme/theme.css`、安装脚本、语气提示文本等）：**MIT**，见 [LICENSE](LICENSE)。
 - `dsh-theme-sandrone/assets/` 里的桑多涅角色图、开屏美术、签名与衍生素材：**不属于 MIT**，权利归原权利人，本仓库不提供额外再授权。
 - 开屏配乐：Kevin MacLeod 的 *Impact Moderato*，**CC BY 4.0**；本仓库做了剪辑、叠加合成音效与混音，完整署名见 [CREDITS.md](CREDITS.md)。
-- 开屏语音：从 B 站语音合集提取的片段，仅混入本地的 `opening-score-local.m4a`，**不随公开仓库发布**；语音权利归原权利人。
+- 开屏语音：从 B 站语音合集提取的片段，混入 `opening-score-local.m4a`；语音权利归原权利人。
 - 上游 [sandrone-codex](https://github.com/fengye337/sandrone-codex) 的 `ASSET-LICENSE.md` 明确说明素材来自用户提供的第三方美术；其 `asset-edition.json` 写明不授予公开再分发许可（`no public redistribution permission is granted by this code license`）。
-- 因此本仓库默认只适合**个人本地使用**。若要公开传播、镜像或打包下载，请先取得相关权利人的许可，或移除 / 替换 `assets/` 中的第三方素材。
+- 本仓库公开可访问，但不代表对第三方素材的再授权；转载、镜像或再分发前请自行确认相关权利。
 - 逐文件来源、SHA-256 与转换说明见 [PROVENANCE.json](PROVENANCE.json)，权利说明见 [ASSET-LICENSE.md](ASSET-LICENSE.md) 与 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
 - 配乐候选与试听链接见 [docs/bgm-options.md](docs/bgm-options.md)。
 
-### 公开仓库前
+### 不使用第三方素材的版本
 
-- **可以直接公开**：`lib/`、`theme/theme.css`、安装脚本、语气提示文本、`opening-score.m4a`（CC BY 4.0，保留署名）、文档与构建脚本。
-- **需要授权后才能公开**：`assets/` 里的桑多涅角色图、`opening-art.webp`、`trace.mp4`、`opening.json`（立绘描边数据）、`opening-score-local.m4a`（语音），以及含角色形象的截图。
-- 如果要先做一个**合规的公开版**：移除上述素材并替换 `docs/` 截图；开屏会自动回退到 HUD + 配乐（`opening-art` 404 时只显示暗场与文字），主题仍可正常使用。
-- 如果已经取得权利人的公开再分发许可，请把许可说明补进 `CREDITS.md`，再切换仓库可见性。
+移除 `dsh-theme-sandrone/assets/` 里的角色美术、`opening-art.webp`、`trace.mp4`、`opening.json`、语音配乐和含角色形象的截图后，主题仍可运行：开屏会退到暗场 + HUD + 配乐（`opening-art` 404 时只显示文字层），界面回退到纯渐变底色。适合做完全原创素材的分支。
 
 非官方同人主题，与 OpenAI、HoYoverse / COGNOSPHERE、DeepSeek 均无隶属或背书关系。
+
+## 安全与发布
+
+- 仓库里不保存密钥；`.gitignore` 已覆盖常见敏感文件名。发现密钥或漏洞请按 [SECURITY.md](SECURITY.md) 处理，不要在公开 Issue 里贴真实 Key。
+- 公开发布前的逐步检查见 [docs/release-checklist.md](docs/release-checklist.md)：2FA、Secret Scanning、分支保护、邮箱隐私、截图裁剪、密钥扫描都在里面。
+- 发行包用 `python tools/build-release.py` 生成，输出 `dist/dsh-theme-sandrone-<version>.zip` 与 `SHA256SUMS-v<version>.txt`；上传前核对哈希。
 
 ## English
 
@@ -284,5 +289,6 @@ A dark, token-driven port of the [`sandrone-codex`](https://github.com/fengye337
 
 - Requires DSH `0.2.1-rc.3+`; install with `pwsh -File .\install.ps1`, then fully restart DSH.
 - The port code and persona text are MIT. The character artwork and opening visuals under `assets/` are **not** MIT and are not licensed for public redistribution; see [ASSET-LICENSE.md](ASSET-LICENSE.md).
-- The opening bed is Kevin MacLeod's *Impact Moderato* (CC BY 4.0); see [CREDITS.md](CREDITS.md). Voice clips are local-only and never committed.
+- The opening bed is Kevin MacLeod's *Impact Moderato* (CC BY 4.0); see [CREDITS.md](CREDITS.md). The full score also includes extracted voice clips; rights remain with their holders.
+- Security policy: [SECURITY.md](SECURITY.md). Release checklist: [docs/release-checklist.md](docs/release-checklist.md).
 - Unofficial fan project; not affiliated with or endorsed by OpenAI, HoYoverse/COGNOSPHERE, or DeepSeek.

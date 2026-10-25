@@ -1,10 +1,10 @@
 /**
  * Sandrone Workshop — the left-sidebar page for the Sandrone theme.
  *
- * The page is deliberately read-only: it fetches the theme's own
- * `/theme-sandrone/status` route, shows what the theme actually sees, and can
- * replay the opening. It never writes the profile, never alters another plugin,
- * and never touches the DOM outside its own React subtree.
+ * The page fetches the theme's own `/theme-sandrone/status` route, shows what
+ * the theme actually sees, can replay the opening, and can toggle the companion
+ * persona through its own route. It never writes the profile, never alters
+ * another plugin, and never touches the DOM outside its own React subtree.
  */
 window.__ModuleLoader__.load({
   id: 'dsh-plugin-sandrone',
@@ -15,6 +15,8 @@ window.__ModuleLoader__.load({
     const NS = 'sandroneHub'
     const PANEL_ID = 'sandrone'
     const STATUS_URL = '/theme-sandrone/status'
+    const PERSONA_URL = '/sandrone-persona/status'
+    const PERSONA_TOGGLE_URL = '/sandrone-persona/toggle'
 
     const zh = {
       panel: '桑多涅工坊',
@@ -27,6 +29,10 @@ window.__ModuleLoader__.load({
       'row.dark': '深色属性',
       'row.applied': '样式已应用',
       'row.opening': '开屏遮罩',
+      'row.persona': '对话语气',
+      'persona.on': '桑多涅',
+      'persona.off': '关闭',
+      'persona.missing': '未安装',
       'on': '已启用',
       'off': '未启用',
       'state.online': '主题在线',
@@ -41,11 +47,13 @@ window.__ModuleLoader__.load({
       'action.title': '操作',
       'action.refresh': '刷新状态',
       'action.replay': '重播开屏',
+      'action.persona': '切换语气',
       'action.copy': '复制诊断',
       'action.copied': '已复制',
-      'action.hint': '重播会重新加载当前页面，并强制播放一次开屏。',
+      'action.hint': '重播会重新加载当前页面，并强制播放一次开屏；切换语气只影响下一条回复。',
+      'action.personaHint': '语气插件未响应；确认 dsh-plugin-sandrone-persona 已安装。',
       'note.title': '说明',
-      'note.body': '这个入口只读取 /theme-sandrone/status 并触发页面重载；不会修改 DSH 核心、配置或其他插件。主题本身仍由 dsh-theme-sandrone 提供。',
+      'note.body': '这个入口只读取 /theme-sandrone/status、切换语气插件的开关注册，并可重播开屏；不会修改 DSH 核心、配置文件或其他插件。主题本身仍由 dsh-theme-sandrone 提供。',
       error: '读取状态失败',
     }
 
@@ -60,6 +68,10 @@ window.__ModuleLoader__.load({
       'row.dark': 'Dark attribute',
       'row.applied': 'Styles applied',
       'row.opening': 'Opening overlay',
+      'row.persona': 'Conversation voice',
+      'persona.on': 'Sandrone',
+      'persona.off': 'off',
+      'persona.missing': 'not installed',
       'on': 'on',
       'off': 'off',
       'state.online': 'Theme online',
@@ -74,11 +86,13 @@ window.__ModuleLoader__.load({
       'action.title': 'Actions',
       'action.refresh': 'Refresh status',
       'action.replay': 'Replay opening',
+      'action.persona': 'Toggle voice',
       'action.copy': 'Copy diagnostics',
       'action.copied': 'Copied',
-      'action.hint': 'Replay reloads this page and forces the opening to play once.',
+      'action.hint': 'Replay reloads the page and forces the opening once; toggling the voice affects the next reply.',
+      'action.personaHint': 'Persona plugin not responding; make sure dsh-plugin-sandrone-persona is installed.',
       'note.title': 'Notes',
-      'note.body': 'This page only reads /theme-sandrone/status and reloads the page. It does not change DSH core, the profile, or any other plugin. The theme itself is still provided by dsh-theme-sandrone.',
+      'note.body': 'This page reads /theme-sandrone/status, toggles the persona plugin live registration, and can replay the opening. It does not change DSH core, the profile, or any other plugin. The theme itself is still provided by dsh-theme-sandrone.',
       error: 'Failed to read status',
     }
 
@@ -272,6 +286,53 @@ window.__ModuleLoader__.load({
       return { state: state, reload: reload }
     }
 
+    /** Read and toggle the companion persona's live registration. */
+    function usePersona() {
+      const [state, setState] = React.useState({ loading: true, enabled: false, available: false, error: null })
+      const apply = function (data) {
+        setState({ loading: false, enabled: data && data.enabled === true, available: true, error: null })
+      }
+      const fail = function (error) {
+        setState({
+          loading: false,
+          enabled: false,
+          available: false,
+          error: String(error && error.message ? error.message : error),
+        })
+      }
+      const load = React.useCallback(function () {
+        setState(function (previous) {
+          return { ...previous, loading: true }
+        })
+        fetch(PERSONA_URL, { cache: 'no-store' })
+          .then(function (response) {
+            if (!response.ok) throw new Error('HTTP ' + response.status)
+            return response.json()
+          })
+          .then(apply)
+          .catch(fail)
+      }, [])
+      const toggle = React.useCallback(function () {
+        setState(function (previous) {
+          return { ...previous, loading: true }
+        })
+        fetch(PERSONA_TOGGLE_URL, { cache: 'no-store' })
+          .then(function (response) {
+            if (!response.ok) throw new Error('HTTP ' + response.status)
+            return response.json()
+          })
+          .then(apply)
+          .catch(fail)
+      }, [])
+      React.useEffect(
+        function () {
+          load()
+        },
+        [load],
+      )
+      return { state: state, load: load, toggle: toggle }
+    }
+
     /**
      * The page body. `t` arrives through the slot's `inject` contract; the
      * dictionary fallback keeps the page readable if a host build changes it.
@@ -284,6 +345,7 @@ window.__ModuleLoader__.load({
               return zh[key] || key
             }
       const status = useStatus()
+      const persona = usePersona()
       const data = status.state.data
       const report = data && data.lastReport ? data.lastReport : {}
       const online = Boolean(data) && !status.state.error
@@ -292,6 +354,13 @@ window.__ModuleLoader__.load({
         : status.state.loading
           ? t('state.loading')
           : t('state.online')
+      const personaLabel = persona.state.loading
+        ? t('state.loading')
+        : !persona.state.available
+          ? t('persona.missing')
+          : persona.state.enabled
+            ? t('persona.on')
+            : t('persona.off')
       const rows = [
         [t('row.route'), data && data.theme ? data.theme : '—'],
         [t('row.css'), data ? String((data.hits && data.hits['theme.css']) || 0) : '—'],
@@ -299,6 +368,7 @@ window.__ModuleLoader__.load({
         [t('row.dark'), String(report.dark) === 'true' ? t('on') : t('off')],
         [t('row.applied'), report.applied || '—'],
         [t('row.opening'), String(report.opening) === 'true' ? t('on') : '—'],
+        [t('row.persona'), personaLabel],
       ]
       const palette = [
         { name: t('color.canvas'), value: '#080b11' },
@@ -423,10 +493,21 @@ window.__ModuleLoader__.load({
               t('action.refresh'),
             ),
             h('button', { type: 'button', style: button, onClick: replay }, t('action.replay')),
+            h(
+              'button',
+              {
+                type: 'button',
+                style: !persona.state.available || persona.state.loading ? buttonDisabled : button,
+                onClick: persona.toggle,
+                disabled: !persona.state.available || persona.state.loading,
+              },
+              t('action.persona'),
+            ),
             h('button', { type: 'button', style: button, onClick: copy }, t('action.copy')),
             copied && h('span', { style: hint }, t('action.copied')),
           ),
           h('p', { style: hint }, t('action.hint')),
+          !persona.state.available && !persona.state.loading && h('p', { style: hint }, t('action.personaHint')),
         ),
         h(
           'section',

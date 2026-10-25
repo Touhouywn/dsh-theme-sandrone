@@ -114,6 +114,14 @@
       "sourceSha256": "a85d378af027d75014be4a95b43007b19e03b06693c4b4ad72594cf392f4bc1c",
       "transform": "0:02.4-0:19.0 excerpt, fades, original SFX layering, AAC 192 kbps",
       "license": "music CC BY 4.0; original SFX MIT"
+    },
+    {
+      "file": "assets/opening-score-local.m4a",
+      "sha256": "f423c4885fb8eb5f909d6226f55d1d136c5ff85a8426d062939d992bbb67b811",
+      "source": "assets/opening-score.m4a + voice clips from Bilibili BV1nJTB6bEhs",
+      "sourceSha256": "4f8d60c97686503ae0bf80fb03cdf141e9abdf1e6f67da50d0f0505f6abeaddf",
+      "transform": "voice clips normalized and layered, bed ducked, AAC 192 kbps",
+      "license": "music CC BY 4.0; voice rights with original holders; original SFX MIT"
     }
   ]
 }

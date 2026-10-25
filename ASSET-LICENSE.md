@@ -23,7 +23,7 @@
 - `portrait.webp` 由上游 `assets/characters/sandrone/portrait.png` 转码而来；
 - `opening-art.webp` 由用户提供的 Wallpaper Engine 视频取帧、缩放为 2560×1440 WebP；
 - `opening.json` 是由上游轮廓/签名数据整理出的派生数据；
-- `opening-score.m4a` 是 Kevin MacLeod *Impact Moderato*（CC BY 4.0）的剪辑 + 原创合成音效；`opening-score-local.m4a` 额外混入从 B 站语音合集提取的片段，**不随公开仓库发布**。
+- `opening-score.m4a` 是 Kevin MacLeod *Impact Moderato*（CC BY 4.0）的剪辑 + 原创合成音效；`opening-score-local.m4a` 额外混入从 B 站语音合集提取的片段，随仓库提供。
 
 逐文件来源、SHA-256 与转换说明见 `PROVENANCE.json`；配乐与语音署名见 `CREDITS.md`。
 
