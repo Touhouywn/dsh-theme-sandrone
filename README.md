@@ -53,6 +53,8 @@
 pwsh -File .\install.ps1
 ```
 
+不想用 git？到 [Releases](../../releases/latest) 下载 `dsh-theme-sandrone-0.3.0.zip`，解压后同样运行 `install.ps1`。
+
 然后**完整退出 DSH 再打开一次**。客户端插件声明（`dsh.client`）按包名缓存到进程结束，这一步不能省。
 
 脚本会：
