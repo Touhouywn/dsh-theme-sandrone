@@ -4,11 +4,11 @@
 
 - **电影式开屏 v2**：4K 立绘、启动 HUD（进度 / 时钟 / 诊断行）、金线描边、手写签名、命中闪光与 16 秒时间轴；点击 / 任意键跳过，22 秒硬兜底。
 - **开屏配乐**：Kevin MacLeod *Impact Moderato*（CC BY 4.0）剪辑 + 原创合成音效；完整版混入语音片段，`opening-score.m4a` 保留无人声回退。
-- **语气插件** `dsh-plugin-sandrone-persona`：`ctx.systemPrompt.section()` 注册可开关的人格段，`/sandrone-persona/status` 与 `/toggle` 控制，下一条回复生效。
+- **语气插件** `dsh-plugin-sandrone-persona`：`ctx.systemPrompt.section()` 注册可开关的人格段，`/sandrone-persona/status` 读取、`POST /enabled` 显式设定，下一条回复生效。
 - 宿主半边新增 `opening-art.webp` / `opening-score.m4a` / `opening-score-local.m4a` 路由，并支持 HTTP Range（音视频流式读取与 206）。
 - 新增 `preview/serve-opening.py` 离线开屏预览、`tools/build-opening-media.py` 配乐构建脚本。
 - 新增 `SECURITY.md`、`docs/release-checklist.md`、`tools/build-release.py`；发行包可复现并带 SHA-256。
-- 侧栏工坊（0.2.0）新增「对话语气」状态行与「切换语气」按钮，直接调用 `/sandrone-persona/toggle`，只影响下一条回复。
+- 侧栏工坊（0.2.0）新增「对话语气」状态行与「切换语气」按钮，向 `/sandrone-persona/enabled` POST 明确状态，只影响下一条回复；状态变更接口改为 POST，避免链接预取或重复请求误翻开关。
 - 根目录安装 / 卸载脚本改为处理三个包；新增 `CREDITS.md` 与 `docs/bgm-options.md`。
 - 移除不再使用的 `assets/opening.mp4`（约 9 MB）。
 

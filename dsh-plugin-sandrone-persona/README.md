@@ -34,8 +34,9 @@ pwsh -File .\install.ps1
 运行中也可以直接切换：
 
 ```text
-GET http://127.0.0.1:<GUI端口>/sandrone-persona/status    # 读取状态
-GET http://127.0.0.1:<GUI端口>/sandrone-persona/toggle    # 切换开/关
+GET  http://127.0.0.1:<GUI端口>/sandrone-persona/status    # 读取状态
+POST http://127.0.0.1:<GUI端口>/sandrone-persona/enabled   # body: {"enabled": true|false}
+POST http://127.0.0.1:<GUI端口>/sandrone-persona/toggle    # 一次性翻转（兼容；GET 不再接受）
 ```
 
 ## 注意

@@ -36,7 +36,7 @@
 - **深蓝输入框**、金色焦点环、金色滚动条、暖色代码块配色。
 - **电影式开屏**：4K 立绘 + 金线描边 + 启动 HUD（进度、时钟、诊断行）+ 命中音效 + 语音/配乐；点击或任意键跳过，每个页面会话只播一次。
 - **桑多涅语气**：可开关的系统提示段，让回复带上人偶工坊主人的口吻；代码、路径、报错仍保持精确。
-- **只读工坊面板**：侧栏点开可看主题是否真的挂载、复制诊断 JSON、重播开屏。
+- **工坊面板**：侧栏点开可看主题是否真的挂载、复制诊断 JSON、重播开屏，并切换桑多涅语气。
 - **深色专用**：启用期间会钉住 `body[data-ds-dark-theme]`，因为原皮肤就是 `"appearance": "dark"`；禁用后立即回到 DSH 原生外观。
 
 ## 要求
@@ -104,7 +104,7 @@ pwsh -File .\dsh-theme-sandrone\install.ps1
   http://127.0.0.1:<GUI端口>/sandrone-persona/status
   ```
 
-  `/theme-sandrone/status` 返回 `theme: "sandrone-marionette"`、样式表命中次数和页面回传的实况（深色属性、框架背景、DOM 轮廓、选择器命中数）。`/sandrone-persona/status` 返回当前语气开关；访问 `/sandrone-persona/toggle` 可以立即切换（下一条回复生效）。
+  `/theme-sandrone/status` 返回 `theme: "sandrone-marionette"`、样式表命中次数和页面回传的实况（深色属性、框架背景、DOM 轮廓、选择器命中数）。`/sandrone-persona/status` 返回当前语气开关；向 `/sandrone-persona/enabled` POST `{"enabled":true|false}` 可以设定状态（`/toggle` 仅接受 POST，避免链接预取误翻）。
 
 ### 卸载
 
@@ -285,7 +285,7 @@ python tools/build-opening-media.py --bgm impact.wav `
 
 ## English
 
-A dark, token-driven port of the [`sandrone-codex`](https://github.com/fengye337/sandrone-codex) skin to the **DeepSeek Harness Web GUI**: black-and-gold palette, character artwork on the canvas, glass sidebar, and a 16-second cinematic boot (4K artwork, traced line-art, telemetry HUD, score). Companion bundles add a read-only "Sandrone Workshop" sidebar panel and a toggleable Sandrone persona.
+A dark, token-driven port of the [`sandrone-codex`](https://github.com/fengye337/sandrone-codex) skin to the **DeepSeek Harness Web GUI**: black-and-gold palette, character artwork on the canvas, glass sidebar, and a 16-second cinematic boot (4K artwork, traced line-art, telemetry HUD, score). Companion bundles add a "Sandrone Workshop" sidebar panel and a toggleable Sandrone persona.
 
 - Requires DSH `0.2.1-rc.3+`; install with `pwsh -File .\install.ps1`, then fully restart DSH.
 - The port code and persona text are MIT. The character artwork and opening visuals under `assets/` are **not** MIT and are not licensed for public redistribution; see [ASSET-LICENSE.md](ASSET-LICENSE.md).

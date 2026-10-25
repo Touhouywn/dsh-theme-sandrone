@@ -5,7 +5,7 @@
 - 实时读取 `/theme-sandrone/status`：主题路由、样式表命中、页面自检、深色属性、开屏状态；
 - 展示主题的五色配色；
 - 一键刷新状态、复制诊断 JSON、重播开屏；
-- 切换桑多涅语气（调用 `/sandrone-persona/toggle`，只影响下一条回复；未安装语气插件时显示「未安装」）；
+- 切换桑多涅语气（向 `/sandrone-persona/enabled` POST 明确的 `enabled` 状态，只影响下一条回复；未安装语气插件时显示「未安装」）；
 - 运行时不写 profile、不改 DSH 配置、不碰其他插件；安装脚本只追加自己的 patch row。主题仍由 `dsh-theme-sandrone` 提供。
 
 ## 结构

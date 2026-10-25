@@ -1,9 +1,9 @@
 {
   "name": "dsh-plugin-sandrone-persona",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
-  "description": "Sandrone companion persona: a configurable system-prompt section that gives DSH conversations the Marionette's voice.",
+  "description": "Sandrone companion persona: a configurable system-prompt section and an idempotent HTTP control (POST /enabled).",
   "license": "MIT",
   "main": "index.js",
   "exports": {

@@ -16,7 +16,7 @@ window.__ModuleLoader__.load({
     const PANEL_ID = 'sandrone'
     const STATUS_URL = '/theme-sandrone/status'
     const PERSONA_URL = '/sandrone-persona/status'
-    const PERSONA_TOGGLE_URL = '/sandrone-persona/toggle'
+    const PERSONA_SET_URL = '/sandrone-persona/enabled'
 
     const zh = {
       panel: '桑多涅工坊',
@@ -312,11 +312,16 @@ window.__ModuleLoader__.load({
           .then(apply)
           .catch(fail)
       }, [])
-      const toggle = React.useCallback(function () {
+      const setEnabled = React.useCallback(function (next) {
         setState(function (previous) {
           return { ...previous, loading: true }
         })
-        fetch(PERSONA_TOGGLE_URL, { cache: 'no-store' })
+        fetch(PERSONA_SET_URL, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ enabled: next === true }),
+          cache: 'no-store',
+        })
           .then(function (response) {
             if (!response.ok) throw new Error('HTTP ' + response.status)
             return response.json()
@@ -330,7 +335,7 @@ window.__ModuleLoader__.load({
         },
         [load],
       )
-      return { state: state, load: load, toggle: toggle }
+      return { state: state, load: load, setEnabled: setEnabled }
     }
 
     /**
@@ -498,7 +503,9 @@ window.__ModuleLoader__.load({
               {
                 type: 'button',
                 style: !persona.state.available || persona.state.loading ? buttonDisabled : button,
-                onClick: persona.toggle,
+                onClick: function () {
+                  persona.setEnabled(!persona.state.enabled)
+                },
                 disabled: !persona.state.available || persona.state.loading,
               },
               t('action.persona'),

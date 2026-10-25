@@ -55,6 +55,33 @@ Conduct:
 - Keep replies reasonably short; no emoticons, no internet slang, no "as an AI" opener.`
 
 /**
+ * Read a tiny JSON body. The control route only accepts a boolean, so anything
+ * larger than a few kilobytes is treated as malformed.
+ * @param req - incoming HTTP request.
+ * @returns the raw body string (empty on error).
+ */
+function readBody(req) {
+  return new Promise((resolve) => {
+    let data = ''
+    let settled = false
+    const finish = (value) => {
+      if (settled) return
+      settled = true
+      resolve(value)
+    }
+    req.on('data', (chunk) => {
+      data += chunk
+      if (data.length > 4096) {
+        finish('')
+        try { req.destroy() } catch { /* already closed */ }
+      }
+    })
+    req.on('end', () => finish(data))
+    req.on('error', () => finish(''))
+  })
+}
+
+/**
  * Mount the persona section and its tiny control route.
  * @param ctx - host plugin context.
  * @param config - `enabled`, `persona`, `language` (`zh` default, `en`).
@@ -84,17 +111,64 @@ export function apply(ctx, config = {}) {
         scope.webServer.register({
           kind: 'prefix',
           path: '/sandrone-persona',
-          handler: (req, res) => {
+          handler: async (req, res) => {
+            const method = req.method ?? 'GET'
             const url = new URL(req.url ?? '/', 'http://localhost')
-            if (url.pathname === '/sandrone-persona/toggle') {
-              enabled = !enabled
+            const payload = () => ({ persona: 'sandrone', enabled, section: SECTION, order: ORDER })
+            const reply = (status, body, extra = {}) => {
+              res.writeHead(status, {
+                'content-type': 'application/json; charset=utf-8',
+                'cache-control': 'no-store',
+                ...extra,
+              })
+              res.end(JSON.stringify(body))
             }
-            if (url.pathname === '/sandrone-persona/toggle' || url.pathname === '/sandrone-persona/status') {
-              const body = JSON.stringify({ persona: 'sandrone', enabled, section: SECTION, order: ORDER })
-              res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' })
-              res.end(body)
+
+            if (url.pathname === '/sandrone-persona/status') {
+              if (method !== 'GET' && method !== 'HEAD') {
+                reply(405, { error: 'method not allowed' }, { allow: 'GET, HEAD' })
+                return
+              }
+              reply(200, payload())
               return
             }
+
+            if (url.pathname === '/sandrone-persona/enabled') {
+              // Idempotent: the caller states the desired value. A duplicated or
+              // prefetched request cannot flip the switch by accident.
+              if (method !== 'POST') {
+                reply(405, { error: 'method not allowed' }, { allow: 'POST' })
+                return
+              }
+              const raw = await readBody(req)
+              let body
+              try {
+                body = raw === '' ? {} : JSON.parse(raw)
+              } catch {
+                reply(400, { error: 'invalid json' })
+                return
+              }
+              if (typeof body.enabled !== 'boolean') {
+                reply(400, { error: 'enabled must be a boolean' })
+                return
+              }
+              enabled = body.enabled
+              reply(200, payload())
+              return
+            }
+
+            if (url.pathname === '/sandrone-persona/toggle') {
+              // Kept for one-shot CLI use. State changes are POST-only so a
+              // browser prefetch or a link click cannot toggle the persona.
+              if (method !== 'POST') {
+                reply(405, { error: 'method not allowed' }, { allow: 'POST' })
+                return
+              }
+              enabled = !enabled
+              reply(200, payload())
+              return
+            }
+
             res.writeHead(404, { 'cache-control': 'no-store' })
             res.end()
           },
