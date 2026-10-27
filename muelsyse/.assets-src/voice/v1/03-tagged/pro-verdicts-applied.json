@@ -1,0 +1,54 @@
+{
+ "verdicts": [
+  {
+   "prts_idx": "21",
+   "key": "选中干员1",
+   "clip_id": "c0021",
+   "before": [
+    "pending-pro",
+    "unmatched; top2=c0021(0.000)"
+   ],
+   "after": [
+    "ok",
+    "pro-accepted-short-clip"
+   ],
+   "asr_score": "n/a",
+   "align_dice": "0.0"
+  },
+  {
+   "prts_idx": "38",
+   "key": "新年祝福",
+   "clip_id": "c0038",
+   "before": [
+    "ok",
+    ""
+   ],
+   "after": [
+    "ok",
+    "pro-accepted-whisper-tail-hallucination"
+   ],
+   "asr_score": "0.887",
+   "align_dice": "0.962"
+  },
+  {
+   "prts_idx": "43",
+   "key": "生日",
+   "clip_id": "",
+   "before": [
+    "missing",
+    "absent-in-video"
+   ],
+   "after": [
+    "missing",
+    "absent-in-video"
+   ],
+   "asr_score": "",
+   "align_dice": "0.0"
+  }
+ ],
+ "statusCounts": {
+  "ok": 37,
+  "pending-pro": 0,
+  "missing": 1
+ }
+}

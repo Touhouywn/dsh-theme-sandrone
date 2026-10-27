@@ -1,0 +1,68 @@
+{
+ "sourceKey": "youngbranch",
+ "aligned": 37,
+ "usable": 37,
+ "pending": 0,
+ "missing": 1,
+ "rows": 38,
+ "stats": {
+  "n": 36,
+  "p10": 0.807,
+  "p25": 0.871,
+  "p50": 0.929,
+  "p90": 1.0,
+  "below055": 0
+ },
+ "gates": [
+  {
+   "name": "asr-median",
+   "spec": ">=0.6",
+   "actual": 0.929,
+   "ok": true
+  },
+  {
+   "name": "asr-p25",
+   "spec": ">=0.5",
+   "actual": 0.871,
+   "ok": true
+  },
+  {
+   "name": "duration",
+   "spec": "0.4-40.0s（v2 为 0.4-10s）",
+   "actual": "0 行超界",
+   "ok": true
+  },
+  {
+   "name": "peak",
+   "spec": ">-38.0 dB",
+   "actual": "0 行失败",
+   "ok": true
+  },
+  {
+   "name": "clip-unique",
+   "spec": "ok 行 clip_id 唯一",
+   "actual": "0 个重复",
+   "ok": true
+  },
+  {
+   "name": "files-present",
+   "spec": "ok 行切片文件存在",
+   "actual": "0 缺失",
+   "ok": true
+  }
+ ],
+ "pendingRows": [],
+ "missingRows": [
+  {
+   "prts_idx": "43",
+   "key": "生日",
+   "note": "absent-in-video"
+  }
+ ],
+ "longRows": [],
+ "todoPro": [
+  "抽听清单逐行裁决（listen-checklist.tsv）",
+  "BGM 轨选择复核（A/B 3 段）",
+  "missing 行定性（absent-in-video / 补录）"
+ ]
+}

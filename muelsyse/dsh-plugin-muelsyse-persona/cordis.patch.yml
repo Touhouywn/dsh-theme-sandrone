@@ -1,0 +1,5 @@
+- insert:
+    - id: muelsyse-persona
+      name: dsh-plugin-muelsyse-persona
+      config:
+        enabled: true

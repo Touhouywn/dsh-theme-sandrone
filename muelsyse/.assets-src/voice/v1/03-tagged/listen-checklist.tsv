@@ -1,0 +1,13 @@
+reason	prts_idx	key	clip_id	status	asrScore	alignDice	note
+spot-1/3	1	任命助理	c0001	ok	0.78	0.883	
+spot-2/3	22	选中干员2	c0022	ok	0.968	0.8	
+spot-3/3	44	周年庆典	c0044	ok	0.976	0.961	
+low-align-dice	12	观看作战记录	c0012	ok	0.779	0.667	align_dice<0.80，过门槛但建议复核
+low-align-dice	23	部署1	c0023	ok	0.765	0.788	align_dice<0.80，过门槛但建议复核
+low-align-dice	27	作战中3	c0027	ok	0.779	0.615	align_dice<0.80，过门槛但建议复核
+pending-pro	21	选中干员1	c0021	pending-pro		0.0	unmatched; top2=c0021(0.000)
+bgm-metric-suspect-ab-1/3	1	任命助理	c0001	ok	0.78	0.883	同一时间轴对照 E:\AI-theme\muelsyse\.assets-src\voice\v1\00-normalized\youngbranch\source.wav vs source-vocals.wav（01-separate/floor-drop.json: preLowShare 0.0199, dropDb 10.89, verdict not_applicable）
+bgm-metric-suspect-ab-2/3	13	精英化晋升1	c0013	ok	0.927	0.958	同一时间轴对照 E:\AI-theme\muelsyse\.assets-src\voice\v1\00-normalized\youngbranch\source.wav vs source-vocals.wav（01-separate/floor-drop.json: preLowShare 0.0199, dropDb 10.89, verdict not_applicable）
+bgm-metric-suspect-ab-3/3	28	作战中4	c0028	ok	1.0	1.0	同一时间轴对照 E:\AI-theme\muelsyse\.assets-src\voice\v1\00-normalized\youngbranch\source.wav vs source-vocals.wav（01-separate/floor-drop.json: preLowShare 0.0199, dropDb 10.89, verdict not_applicable）
+pro-accepted	21	选中干员1	c0021	ok	n/a	0.0	pro-accepted-short-clip（vocal 轨新库）
+pro-accepted	38	新年祝福	c0038	ok	0.887	0.962	pro-accepted-whisper-tail-hallucination（vocal 轨新库）

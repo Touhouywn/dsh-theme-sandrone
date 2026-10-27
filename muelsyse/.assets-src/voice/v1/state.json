@@ -1,0 +1,35 @@
+{
+ "stage": "08-bgm-vocal-rerun",
+ "verdict": "PASS",
+ "track": "vocals",
+ "reason": "BGM 例外（preLowShare 0.0199 < 0.15，但 dropDb 10.89 ≥ 8）：非低频 BGM 绕过 lowShare 判据；按 PRO-VERDICT §4 换 vocal 轨重跑",
+ "products": {
+  "source": "sources/BV17z421U71V.m4a",
+  "vocals16k": "00-normalized/youngbranch/source-vocals-16k.wav",
+  "fragments": "01-slices/youngbranch/_fragments（204 条碎片，留档）",
+  "clips": "01-slices/youngbranch/clips（整句 37 条，vocal 轨）",
+  "asr": "02-asr/youngbranch.json",
+  "cross": "02-asr/youngbranch.cross.json",
+  "aligned": "03-tagged/aligned.tsv",
+  "audit": "03-tagged/audit.json",
+  "listen": "03-tagged/listen-checklist.tsv（原 10 行 + 21/38）",
+  "proVerdicts": "03-tagged/pro-verdicts-applied.json",
+  "release": "07-release/manifest.json（37 条）",
+  "qa": "03-tagged/release-qa-vocal.json",
+  "signoff": "03-tagged/SIGNOFF.md",
+  "report": "03-tagged/RUN-REPORT-08.md",
+  "backupOriginal": "backup/release-original-track-20261027-205148"
+ },
+ "pending": [
+  {
+   "row": 43,
+   "key": "生日",
+   "kind": "missing",
+   "reason": "absent-in-video（Pro 维持）"
+  },
+  {
+   "kind": "P2",
+   "reason": "素材授权、抽听签字、A/B 定轨、对外发布、07 人格安装"
+  }
+ ]
+}
