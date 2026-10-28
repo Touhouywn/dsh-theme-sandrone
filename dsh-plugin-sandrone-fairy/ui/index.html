@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>桑多涅 · 控制台</title>
+<style>
+  :root {
+    --bg: #05061a;
+    --panel: rgba(20, 22, 48, .78);
+    --line: rgba(148, 128, 220, .22);
+    --ink: #e9e4ff;
+    --dim: #9d95c6;
+    --violet: #a878ff;
+    --gold: #d8b46a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1100px 620px at 12% -8%, rgba(126, 88, 220, .22), transparent 62%),
+      radial-gradient(900px 520px at 92% 0%, rgba(58, 92, 210, .18), transparent 60%),
+      var(--bg);
+    color: var(--ink);
+    font: 14px/1.65 "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 28px 20px 60px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  header { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+  h1 { font-size: 22px; margin: 0; letter-spacing: .06em; font-weight: 600; }
+  h1 small { font-weight: 400; font-size: 12px; color: var(--dim); letter-spacing: .14em; margin-left: 8px; }
+  .sub { color: var(--dim); font-size: 12px; margin: 0 0 20px; }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px 16px 14px; backdrop-filter: blur(8px);
+  }
+  .card h2 {
+    font-size: 12px; letter-spacing: .18em; color: var(--dim);
+    margin: 0 0 12px; font-weight: 600; text-transform: uppercase;
+  }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 5px 0; }
+  .row + .row { border-top: 1px dashed rgba(148, 128, 220, .12); }
+  .row label { color: #cfc8ee; }
+  .row .hint { color: var(--dim); font-size: 12px; }
+  input[type="text"], input[type="number"], select, textarea {
+    background: rgba(8, 9, 24, .82); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 6px 9px; font: inherit; min-width: 130px;
+  }
+  input[type="range"] { width: 140px; accent-color: var(--violet); }
+  textarea { width: 100%; min-height: 148px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+  input[type="checkbox"] { accent-color: var(--violet); width: 16px; height: 16px; }
+  button {
+    font: inherit; color: #fff; cursor: pointer;
+    background: linear-gradient(180deg, rgba(146, 104, 240, .92), rgba(108, 70, 208, .92));
+    border: 1px solid rgba(180, 148, 255, .35); border-radius: 9px; padding: 7px 14px;
+  }
+  button.ghost { background: rgba(255, 255, 255, .05); border-color: var(--line); color: var(--ink); }
+  button:active { transform: translateY(1px); }
+  .bar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 3px 10px; font-size: 12px; color: #cfc8ee;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #6b648f; }
+  .dot.on { background: #5fd8bf; box-shadow: 0 0 8px rgba(95, 216, 191, .7); }
+  .dot.off { background: #ff6b8a; }
+  .msg { min-height: 18px; font-size: 12px; color: var(--dim); margin-top: 10px; }
+  .msg.ok { color: #77e2c6; }
+  .msg.bad { color: #ff8ba3; }
+  .kv { display: grid; grid-template-columns: 108px 1fr; gap: 3px 10px; font-size: 13px; }
+  .kv span:first-child { color: var(--dim); }
+  .kv span:last-child { color: #e6e1ff; word-break: break-all; }
+  footer { text-align: center; color: var(--dim); font-size: 12px; margin-top: 26px; }
+  a { color: var(--violet); }
+  .pools { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pools button { padding: 5px 11px; font-size: 12px; background: rgba(255, 255, 255, .05); border-color: var(--line); }
+  .pools button.active { background: linear-gradient(180deg, rgba(146, 104, 240, .9), rgba(108, 70, 208, .9)); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>桑多涅 · 控制台<small>SANDRONE</small></h1>
+    <span class="pill"><i class="dot" id="dot-health"></i><span id="health-text">正在探测…</span></span>
+  </header>
+  <p class="sub">改完点「保存配置」，界面下一次刷新生效；语音参数（引擎 / 音色 / 温度）保存后立即生效。</p>
+
+  <div class="grid">
+    <section class="card">
+      <h2>运行状态</h2>
+      <div class="kv" id="stat">
+        <span>状态</span><span id="s-mode">…</span>
+        <span>引擎</span><span id="s-engine">…</span>
+        <span>音色</span><span id="s-timbre">…</span>
+        <span>推理服务</span><span id="s-lite">…</span>
+        <span>显存</span><span id="s-vram">…</span>
+        <span>台词条数</span><span id="s-voices">…</span>
+        <span>运行档位</span><span id="s-tier">…</span>
+        <span>配置版本</span><span id="s-ver">…</span>
+      </div>
+      <div class="bar">
+        <button class="ghost" id="reload-stat">重新探测</button>
+        <button class="ghost" id="open-setup">安装自检</button>
+        <button class="ghost" id="open-dsh">回到 DSH</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>部件开关</h2>
+      <div class="row"><label for="c-splash">开屏动画</label><input type="checkbox" id="c-splash"></div>
+      <div class="row"><label for="c-pet">桌宠</label><input type="checkbox" id="c-pet"></div>
+      <div class="row"><label for="c-voice">语音</label><input type="checkbox" id="c-voice"></div>
+      <div class="row"><label for="c-greeting">开屏问候（说“回来了”）</label><input type="checkbox" id="c-greeting"></div>
+      <div class="row"><label for="i-skip">开屏时长（毫秒）</label><input type="number" id="i-skip" step="200" min="4200" max="20000"></div>
+      <div class="row"><label for="i-skin">主题皮肤</label>
+        <select id="i-skin"><option value="aurora">深蓝紫（默认）</option><option value="workshop">黑金（合作主题）</option></select>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>语音</h2>
+      <div class="row"><label for="i-engine">引擎</label>
+        <select id="i-engine">
+          <option value="lite">Lite（快，推荐）</option>
+          <option value="api_v2">api_v2（慢但稳）</option>
+        </select>
+      </div>
+      <div class="row"><label for="i-timbre">音色</label>
+        <select id="i-timbre">
+          <option value="sandrone">默认（第 4 段原声）</option>
+          <option value="alt-a">备选 A（第 3 段）</option>
+          <option value="alt-b">备选 B（第 5 段）</option>
+        </select>
+      </div>
+      <div class="row"><label for="i-name">她对你的称呼</label><input type="text" id="i-name" maxlength="12"></div>
+      <div class="row"><label for="i-temp">采样温度 <b id="v-temp">0.70</b></label>
+        <input type="range" id="i-temp" min="0.3" max="1.2" step="0.05">
+      </div>
+      <div class="row"><label for="c-poolspeed">按情绪池微调语速</label><input type="checkbox" id="c-poolspeed"></div>
+      <div class="row"><label for="i-idle">空闲退出（分钟）</label><input type="number" id="i-idle" min="1" max="60"></div>
+      <div class="row"><label for="i-wake">唤醒超时（秒）</label><input type="number" id="i-wake" min="5" max="180"></div>
+    </section>
+
+    <section class="card">
+      <h2>桌宠</h2>
+      <div class="row"><label for="i-model">形象</label>
+        <select id="i-model">
+          <option value="classic">立绘（原画全身）</option>
+          <option value="sit">侧坐端茶</option>
+          <option value="cake">甜点 Q 版</option>
+          <option value="pout">嘟嘴大头</option>
+        </select>
+      </div>
+      <div class="row"><label for="i-size">尺寸 <b id="v-size">400</b> px</label>
+        <input type="range" id="i-size" min="160" max="560" step="10">
+      </div>
+      <div class="row"><label for="i-corner">默认停靠</label>
+        <select id="i-corner"><option value="bottom-left">左下角</option><option value="bottom-right">右下角</option></select>
+      </div>
+      <p class="hint" style="color:#9d95c6;font-size:12px;margin:10px 0 0">面板固定在右上角，拖动她可以换位置，位置会记住。</p>
+    </section>
+
+    <section class="card" style="grid-column: 1 / -1;">
+      <h2>试听</h2>
+      <div class="row" style="gap:10px;flex-wrap:wrap;justify-content:flex-start">
+        <input type="text" id="i-say" style="flex:1;min-width:260px" value="雪，茶凉了，我去换一杯。">
+        <div class="pools" id="pools">
+          <button data-pool="cool">冷淡</button>
+          <button data-pool="warm">温和</button>
+          <button data-pool="tease">调侃</button>
+          <button data-pool="tired">疲惫</button>
+        </div>
+        <button id="play">试听这句</button>
+      </div>
+      <div class="msg" id="say-msg"></div>
+    </section>
+
+    <section class="card" style="grid-column: 1 / -1;">
+      <h2>高级：整份配置</h2>
+      <textarea id="json" spellcheck="false"></textarea>
+      <div class="bar">
+        <button id="save">保存配置</button>
+        <button class="ghost" id="pull">重新读取</button>
+        <button class="ghost" id="restore">恢复默认（仅表单）</button>
+        <span class="msg" id="msg"></span>
+      </div>
+    </section>
+  </div>
+
+  <footer>桑多涅 · fairy — 美术与语音素材版权归米哈游与配音演员，代码 MIT。</footer>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id)
+  const BASE = location.origin
+  let cfg = null
+  let pool = 'warm'
+
+  const setMsg = (el, text, kind) => {
+    el.textContent = text || ''
+    el.className = 'msg' + (kind ? ' ' + kind : '')
+  }
+
+  async function getJSON(path) {
+    const res = await fetch(BASE + path, { cache: 'no-store' })
+    if (!res.ok) throw new Error(path + ' → ' + res.status)
+    return res.json()
+  }
+
+  async function loadStatus() {
+    try {
+      const [cfgNow, voice] = await Promise.all([
+        getJSON('/sandrone/config'),
+        getJSON('/sandrone/voice').catch(() => null),
+      ])
+      cfg = cfgNow
+      const lite = voice && voice.lite ? voice.lite : null
+      const engine = (cfgNow.voice && cfgNow.voice.engine) || 'api_v2'
+      $('dot-health').className = 'dot ' + ((lite && lite.ok) || engine === 'api_v2' ? 'on' : 'off')
+      $('health-text').textContent = (lite && lite.ok) ? '在线' : '宿主在线 · 引擎待唤醒'
+      $('s-mode').textContent = '正常'
+      $('s-engine').textContent = engine === 'lite' ? 'GSV-TTS-Lite（推荐）' : 'api_v2'
+      $('s-timbre').textContent = (voice && voice.timbre) || (cfgNow.voice && cfgNow.voice.timbre) || 'sandrone'
+      $('s-lite').textContent = lite ? (lite.api + (lite.ok ? ' · 已就绪' : ' · 未启动（首句时唤醒）')) : '未知'
+      $('s-vram').textContent = lite && lite.vramG ? lite.vramG + ' GB（峰值约 1.3 GB）' : '—'
+      $('s-ver').textContent = (voice && voice.engine) ? '0.11.0' : '—'
+      $('s-voices').textContent = '加载中…'
+      const tier = await getJSON('/sandrone/tier').catch(() => null)
+      if (tier) {
+        $('s-tier').textContent = tier.label + ' ｜ ' + tier.reason
+      }
+      const vs = await getJSON('/sandrone/voices').catch(() => null)
+      $('s-voices').textContent = vs && vs.keys ? vs.keys.length + ' 条（预制台词）' : '—'
+    } catch (err) {
+      $('dot-health').className = 'dot off'
+      $('health-text').textContent = '宿主不可达'
+      $('s-mode').textContent = String(err.message || err)
+    }
+  }
+
+  function fillForm() {
+    const v = cfg.voice || {}
+    const p = cfg.pet || {}
+    const s = cfg.splash || {}
+    const parts = cfg.parts || {}
+    $('c-splash').checked = parts.splash !== false
+    $('c-pet').checked = parts.pet !== false
+    $('c-voice').checked = parts.voice !== false
+    $('c-greeting').checked = s.greeting !== false
+    $('i-skip').value = s.skipMs || 7600
+    $('i-skin').value = (cfg.ui && cfg.ui.skin) || 'aurora'
+    $('i-engine').value = v.engine || 'api_v2'
+    $('i-timbre').value = v.timbre || 'sandrone'
+    $('i-name').value = v.userName || '雪'
+    $('i-temp').value = typeof v.temperature === 'number' ? v.temperature : 0.7
+    $('v-temp').textContent = Number($('i-temp').value).toFixed(2)
+    $('c-poolspeed').checked = v.poolSpeed !== false
+    $('i-idle').value = Math.round((v.idleMs || 480000) / 60000)
+    $('i-wake').value = Math.round((v.wakeMs || 35000) / 1000)
+    $('i-model').value = p.model || 'classic'
+    $('i-size').value = p.size || 400
+    $('v-size').textContent = $('i-size').value
+    $('i-corner').value = p.corner || 'bottom-left'
+    $('json').value = JSON.stringify(cfg, null, 2)
+  }
+
+  function collect() {
+    const base = JSON.parse(JSON.stringify(cfg || {}))
+    base.parts = Object.assign({}, base.parts, {
+      splash: $('c-splash').checked,
+      pet: $('c-pet').checked,
+      voice: $('c-voice').checked,
+    })
+    base.splash = Object.assign({}, base.splash, {
+      greeting: $('c-greeting').checked,
+      skipMs: Number($('i-skip').value) || 7600,
+    })
+    base.ui = Object.assign({}, base.ui, { skin: $('i-skin').value })
+    base.voice = Object.assign({}, base.voice, {
+      engine: $('i-engine').value,
+      timbre: $('i-timbre').value,
+      userName: $('i-name').value.trim() || '雪',
+      temperature: Number($('i-temp').value),
+      poolSpeed: $('c-poolspeed').checked,
+      idleMs: Math.max(60000, Number($('i-idle').value) * 60000 || 480000),
+      wakeMs: Math.max(5000, Number($('i-wake').value) * 1000 || 35000),
+    })
+    base.pet = Object.assign({}, base.pet, {
+      model: $('i-model').value,
+      size: Number($('i-size').value),
+      corner: $('i-corner').value,
+    })
+    return base
+  }
+
+  async function save() {
+    const body = $('json').value.trim() ? JSON.parse($('json').value) : collect()
+    const res = await fetch(BASE + '/sandrone/config', {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+    })
+    if (!res.ok) throw new Error('保存失败 → ' + res.status)
+    cfg = await res.json()
+    fillForm()
+    setMsg($('msg'), '已保存。界面在下次刷新后按新配置渲染。', 'ok')
+    loadStatus()
+  }
+
+  $('i-temp').addEventListener('input', () => { $('v-temp').textContent = Number($('i-temp').value).toFixed(2) })
+  $('i-size').addEventListener('input', () => { $('v-size').textContent = $('i-size').value })
+  $('save').addEventListener('click', () => save().catch((e) => setMsg($('msg'), e.message, 'bad')))
+  $('pull').addEventListener('click', () => loadStatus().then(() => location.reload()))
+  $('reload-stat').addEventListener('click', () => loadStatus())
+  $('open-setup').addEventListener('click', () => { location.href = '/sandrone/setup' })
+  $('open-dsh').addEventListener('click', () => { location.href = '/' })
+  $('restore').addEventListener('click', () => { fillForm(); setMsg($('msg'), '表单已回到当前生效值。', '') })
+
+  document.querySelectorAll('#pools button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      pool = btn.dataset.pool
+      document.querySelectorAll('#pools button').forEach((b) => b.classList.toggle('active', b === btn))
+    })
+  })
+  document.querySelector('#pools button[data-pool="warm"]').classList.add('active')
+
+  $('play').addEventListener('click', async () => {
+    const text = $('i-say').value.trim()
+    if (!text) return
+    setMsg($('say-msg'), '合成中…（首句要唤醒模型，约 5–20 秒）', '')
+    try {
+      const res = await fetch(BASE + '/sandrone/tts', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ text, pool }),
+      })
+      if (!res.ok) throw new Error('合成失败 → ' + res.status)
+      const blob = await res.blob()
+      const audio = new Audio(URL.createObjectURL(blob))
+      audio.addEventListener('ended', () => setMsg($('say-msg'), '播放结束。', 'ok'))
+      await audio.play()
+      setMsg($('say-msg'), '播放中…', 'ok')
+    } catch (err) {
+      setMsg($('say-msg'), String(err.message || err), 'bad')
+    }
+  })
+
+  loadStatus().then(() => { if (cfg) fillForm() })
+})()
+</script>
+</body>
+</html>

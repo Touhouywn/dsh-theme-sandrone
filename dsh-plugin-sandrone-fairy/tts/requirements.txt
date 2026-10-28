@@ -1,0 +1,26 @@
+# 语音引擎依赖（GSV-TTS-Lite 链路）
+#
+# 安装：
+#   python -m venv tts/gsvenv
+#   tts/gsvenv/Scripts/pip install -r tts/requirements.txt     # Windows
+#   tts/gsvenv/bin/pip install -r tts/requirements.txt         # Linux/macOS
+#
+# 说明：
+#   torch 用 CPU 版也能跑（C 档），想走 GPU 换成 cu121 的源：
+#   pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu121
+#
+torch>=2.3
+torchaudio>=2.3
+
+# 推理引擎（自带 GPT-SoVITS v2 / v2ProPlus 支持、CUDA Graph、KV Cache）
+gsv-tts-lite==0.4.7
+
+# 读写音频
+soundfile>=0.12
+numpy>=1.26,<3
+av>=12
+pysbd>=0.3.4
+
+# 我们的脚本用得到（烘台词 / 转简体 / 转写参考音）
+ffmpeg-python>=0.2
+zhconv>=1.4

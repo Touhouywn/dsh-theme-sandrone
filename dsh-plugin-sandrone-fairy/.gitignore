@@ -1,0 +1,31 @@
+# runtime state
+data/
+assets/voice/cache/
+
+# the speech engine: ~1.3 GB of weights + vendor clone, installed separately
+tts/gptsovits/
+tts/rvcenv/
+tts/rvc/
+
+# generated datasets and clips
+tts/dataset/
+tts/dataset_old/
+tts/dataset2/
+tts/*.log
+
+# preview scratch
+preview/.chrome/
+preview/.shot/
+preview/*.html
+preview/tmp_voice/
+
+# tooling
+node_modules/
+*.bak-*
+*.bom-bak-*
+tts/source.wav
+tts/dataset*/
+jieba.cache
+data/tmp/
+tts/gsvenv/
+tts/gsv-models/

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>桑多涅 · 安装自检</title>
+<style>
+  :root {
+    --bg: #05061a; --panel: rgba(20, 22, 48, .78); --line: rgba(148, 128, 220, .22);
+    --ink: #e9e4ff; --dim: #9d95c6; --violet: #a878ff;
+    --ok: #5fd8bf; --warn: #e8bd6b; --bad: #ff6b8a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink); min-height: 100vh; padding: 28px 20px 64px;
+    background:
+      radial-gradient(1100px 620px at 12% -8%, rgba(126, 88, 220, .22), transparent 62%),
+      radial-gradient(900px 520px at 92% 0%, rgba(58, 92, 210, .18), transparent 60%),
+      var(--bg);
+    font: 14px/1.65 "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0; letter-spacing: .06em; font-weight: 600; }
+  h1 small { font-weight: 400; font-size: 12px; color: var(--dim); letter-spacing: .14em; margin-left: 8px; }
+  .sub { color: var(--dim); font-size: 12px; margin: 6px 0 18px; }
+  .hero {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+    padding: 18px 20px; margin-bottom: 16px;
+  }
+  .ring {
+    width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 20px; font-weight: 700; border: 2px solid var(--line); flex: none;
+  }
+  .ring.ok { border-color: rgba(95, 216, 191, .55); color: var(--ok); box-shadow: 0 0 22px rgba(95, 216, 191, .18); }
+  .ring.warn { border-color: rgba(232, 189, 107, .55); color: var(--warn); }
+  .ring.bad { border-color: rgba(255, 107, 138, .55); color: var(--bad); box-shadow: 0 0 22px rgba(255, 107, 138, .16); }
+  .hero .txt { flex: 1; min-width: 240px; }
+  .hero .txt b { font-size: 16px; }
+  .hero .txt p { margin: 4px 0 0; color: var(--dim); font-size: 12.5px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; color: #cfc8ee; }
+  .chip b { color: var(--ink); }
+  .list { display: grid; gap: 10px; }
+  .item {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+    padding: 13px 15px; display: grid; grid-template-columns: 26px 1fr auto; gap: 12px; align-items: start;
+  }
+  .item .mark { font-size: 16px; line-height: 1.35; }
+  .item.ok .mark { color: var(--ok); }
+  .item.warn .mark { color: var(--warn); }
+  .item.fail .mark { color: var(--bad); }
+  .item h3 { margin: 0; font-size: 14px; font-weight: 600; }
+  .item p { margin: 3px 0 0; color: var(--dim); font-size: 12.5px; word-break: break-all; }
+  .fix {
+    margin-top: 8px; background: rgba(8, 9, 24, .86); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 10px; font-family: ui-monospace, Consolas, monospace;
+    font-size: 12px; color: #cfc8ee; display: flex; gap: 10px; align-items: center;
+  }
+  .fix code { flex: 1; word-break: break-all; }
+  button {
+    font: inherit; color: #fff; cursor: pointer; border-radius: 9px; padding: 6px 12px;
+    background: linear-gradient(180deg, rgba(146, 104, 240, .92), rgba(108, 70, 208, .92));
+    border: 1px solid rgba(180, 148, 255, .35); font-size: 12.5px;
+  }
+  button.ghost { background: rgba(255, 255, 255, .05); border-color: var(--line); color: var(--ink); }
+  button:disabled { opacity: .5; cursor: default; }
+  .bar { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0 0; align-items: center; }
+  .msg { font-size: 12px; color: var(--dim); min-height: 18px; }
+  .msg.ok { color: var(--ok); } .msg.bad { color: var(--bad); }
+  footer { text-align: center; color: var(--dim); font-size: 12px; margin-top: 26px; }
+  a { color: var(--violet); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>桑多涅 · 安装自检<small>SETUP</small></h1>
+  <p class="sub">第一次装完后先跑一遍这里。红色是必须修的，黄色是能跑但会缺功能。改完点「重新检测」。</p>
+
+  <div class="hero">
+    <div class="ring" id="ring">…</div>
+    <div class="txt">
+      <b id="headline">正在检测…</b>
+      <p id="subline">会检查 Python 环境、模型、权重、参考音、显卡与两套推理服务。</p>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="chips" style="width:100%"><span class="chip" id="tier-chip">档位探测中…</span></div>
+  </div>
+
+  <div class="list" id="list"></div>
+
+  <div class="bar">
+    <button id="recheck">重新检测</button>
+    <button class="ghost" id="start-lite">启动 Lite 服务</button>
+    <button class="ghost" id="open-console">打开控制台</button>
+    <button class="ghost" id="open-dsh">回到 DSH</button>
+    <span class="msg" id="msg"></span>
+  </div>
+
+  <footer>桑多涅 · fairy — 美术与语音素材版权归米哈游与配音演员，代码 MIT。</footer>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id)
+  const MARK = { ok: '✓', warn: '!', fail: '×' }
+  const setMsg = (text, kind) => {
+    const el = $('msg')
+    el.textContent = text || ''
+    el.className = 'msg' + (kind ? ' ' + kind : '')
+  }
+
+  function render(report) {
+    const { summary, checks, engine } = report
+    const ring = $('ring')
+    ring.className = 'ring ' + (summary.fail ? 'bad' : summary.warn ? 'warn' : 'ok')
+    ring.textContent = summary.fail ? summary.fail : summary.warn ? summary.warn : '✓'
+    $('headline').textContent = summary.fail
+      ? `${summary.fail} 项必须要修`
+      : summary.warn ? '能跑，但有 ' + summary.warn + ' 项可选没配' : '全部就绪'
+    $('subline').textContent = summary.fail
+      ? '按下面的命令修，修一项点一次「重新检测」。'
+      : '引擎：' + (engine === 'lite' ? 'GSV-TTS-Lite' : 'api_v2') + '。可以直接去控制台调参数。'
+    $('chips').innerHTML = [
+      `<span class="chip">通过 <b>${summary.ok}</b></span>`,
+      `<span class="chip">提示 <b>${summary.warn}</b></span>`,
+      `<span class="chip">失败 <b>${summary.fail}</b></span>`,
+    ].join('')
+
+    $('list').innerHTML = checks.map((c) => {
+      const fix = c.fix && c.level !== 'ok'
+        ? `<div class="fix"><code>${c.fix.replace(/</g, '&lt;')}</code><button class="ghost" data-copy="${c.fix.replace(/"/g, '&quot;')}">复制</button></div>`
+        : ''
+      return `<div class="item ${c.level}">
+        <div class="mark">${MARK[c.level] || '·'}</div>
+        <div><h3>${c.label}</h3><p>${c.detail || ''}</p>${fix}</div>
+        <div></div>
+      </div>`
+    }).join('')
+
+    document.querySelectorAll('[data-copy]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(btn.dataset.copy)
+          btn.textContent = '已复制'
+          setTimeout(() => { btn.textContent = '复制' }, 1200)
+        } catch (error) {
+          setMsg('复制失败，手动选一下命令吧', 'bad')
+        }
+      })
+    })
+  }
+
+  async function loadTier() {
+    try {
+      const res = await fetch('/sandrone/tier', { cache: 'no-store' })
+      if (!res.ok) return
+      const tier = await res.json()
+      $('tier-chip').innerHTML = `运行档位 <b>${tier.label}</b> · ${tier.reason}`
+    } catch (error) { /* ignore */ }
+  }
+
+  async function check() {
+    $('headline').textContent = '正在检测…'
+    setMsg('')
+    try {
+      const res = await fetch('/sandrone/setup/check', { cache: 'no-store' })
+      if (!res.ok) throw new Error('检测失败 → ' + res.status)
+      render(await res.json())
+    } catch (error) {
+      $('ring').className = 'ring bad'
+      $('ring').textContent = '×'
+      $('headline').textContent = '宿主没响应'
+      $('subline').textContent = String(error.message || error)
+    }
+  }
+
+  $('recheck').addEventListener('click', check)
+  $('start-lite').addEventListener('click', async () => {
+    $('start-lite').disabled = true
+    setMsg('正在拉起 Lite 服务（首次会下载模型，可能要几分钟）…')
+    try {
+      const res = await fetch('/sandrone/setup/start', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ target: 'lite' }),
+      })
+      const data = await res.json()
+      setMsg(data.ready ? 'Lite 已就绪。' : '已发起启动，稍等再点「重新检测」。', data.ready ? 'ok' : '')
+    } catch (error) {
+      setMsg(String(error.message || error), 'bad')
+    } finally {
+      $('start-lite').disabled = false
+      setTimeout(check, 1200)
+    }
+  })
+  $('open-console').addEventListener('click', () => { location.href = '/sandrone/ui' })
+  $('open-dsh').addEventListener('click', () => { location.href = '/' })
+
+  loadTier()
+  check()
+})()
+</script>
+</body>
+</html>

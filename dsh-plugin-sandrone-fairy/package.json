@@ -1,0 +1,64 @@
+{
+  "name": "sandrone-fairy",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Sandrone (Genshin Impact, 7th Harbinger 'Marionette') as a companion for the DSH Web GUI: cinematic boot splash, bottom-left desktop pet, and a chat panel that speaks in her cloned voice.",
+  "license": "MIT",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "LICENSE",
+    "NOTICE.md",
+    "README.md",
+    "assets/*.jpg",
+    "assets/*.png",
+    "assets/*.webp",
+    "assets/voice/*.m4a",
+    "client.js",
+    "cordis.patch.yml",
+    "docs/*.md",
+    "docs/img/*.png",
+    "icon.svg",
+    "index.js",
+    "install.ps1",
+    "install.sh",
+    "locale/*.json",
+    "tools/*.py",
+    "tools/smoke.mjs",
+    "tts/*.py",
+    "tts/ref/*.wav",
+    "tts/requirements.txt",
+    "ui/*.html",
+    "ui/index.html",
+    "ui/setup.html",
+    "uninstall.ps1"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true
+    }
+  },
+  "engines": {
+    "dsh": ">=0.2.1-rc.3"
+  },
+  "keywords": [
+    "dsh-plugin",
+    "sandrone",
+    "desktop-pet",
+    "boot-splash",
+    "tts",
+    "gpt-sovits"
+  ]
+}
