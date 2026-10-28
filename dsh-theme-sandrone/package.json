@@ -1,9 +1,9 @@
 {
   "name": "dsh-theme-sandrone",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Sandrone · 人偶工坊 — cinematic dark theme for the DeepSeek Harness Web GUI.",
+  "description": "Sandrone · 人偶工坊 — integrated cinematic theme for DeepSeek Harness: black-gold palette, 16s opening, three-track gramophone, Workshop hub, persona, and an optional fairy pet with 48 fixed voice clips.",
   "license": "MIT",
   "main": "lib/index.js",
   "exports": {
@@ -37,6 +37,6 @@
     "uninstall.ps1"
   ],
   "engines": {
-    "dsh": ">=0.2.1-rc.3"
+    "dsh": ">=0.2.0"
   }
 }

@@ -1,6 +1,6 @@
 # Sandrone · 机偶 · Fairy
 
-> **1.0.0 整合版**——本包已与工作台 `dsh-theme-sandrone` 完成接缝合并。开箱默认：黑金 `workshop` 皮肤、主题自带 16s 开屏（fairy 的 6.2s 电影开屏可配置开启）、`voice.mode=clips` 只播 48 条预制台词、称呼「你」。三个部件（splash / pet / voice）可用 `parts` 单独开关；控制台 `/sandrone/ui` 是静态页，不占 `parts`。
+> **1.0.1 整合版**——本包已与工作台 `dsh-theme-sandrone` 完成接缝合并。开箱默认：黑金 `workshop` 皮肤、主题自带 16s 开屏（fairy 的 6.2s 电影开屏可配置开启）、`voice.mode=clips` 只播 48 条预制台词、称呼「你」。三个部件（splash / pet / voice）可用 `parts` 单独开关；控制台 `/sandrone/ui` 是静态页，不占 `parts`。
 
 合作 B站 UP 主 [是雪夕捏](https://space.bilibili.com/662792249) 提供语音引擎、桌宠与控制台；本整合版由工作台黑金主题接缝合并。
 

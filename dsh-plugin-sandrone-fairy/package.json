@@ -1,6 +1,6 @@
 {
   "name": "sandrone-fairy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "description": "Sandrone (Genshin Impact, 7th Harbinger 'Marionette') as a companion for the DSH Web GUI: cinematic boot splash, bottom-left desktop pet, and a chat panel that speaks in her cloned voice.",
@@ -51,7 +51,7 @@
     }
   },
   "engines": {
-    "dsh": ">=0.2.1-rc.3"
+    "dsh": ">=0.2.0"
   },
   "keywords": [
     "dsh-plugin",

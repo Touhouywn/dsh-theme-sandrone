@@ -1,9 +1,9 @@
 {
   "name": "dsh-plugin-sandrone",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
-  "description": "Sandrone Workshop: a left-sidebar control page for the Sandrone DSH theme, including a live persona toggle.",
+  "description": "Sandrone Workshop: a left-sidebar control page for the Sandrone DSH theme, with live persona and fairy-pet toggles.",
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",
@@ -29,6 +29,6 @@
     }
   },
   "engines": {
-    "dsh": ">=0.2.1-rc.3"
+    "dsh": ">=0.2.0"
   }
 }
